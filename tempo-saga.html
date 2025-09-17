@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Tempo Médio no SAGA</title>
+  <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  <nav>
+  <!-- Grupo esquerdo -->
+  <div class="nav-left">
+    <ul>
+      <li><a href="index.html"><i class="fas fa-home"></i> Início</a></li>
+    </ul>
+  </div>
+
+  <!-- Grupo central -->
+  <div class="nav-center">
+    <h1>Tempo Médio no SAGA (Por Atendente)</h1>
+  </div>
+
+  <!-- Grupo direito -->
+  <div class="nav-right">
+    <button id="btnAbrirTop">Colar</button>
+    <button id="btnAcessarSistema">Acessar Sistema</button>
+  </div>
+</nav>
+   <div class="nav-lateral">
+    <ul>
+      <li><a href="servicos-prestados.html">Serviços Prestados</a></li>
+      <li><a href="senhas-emitidas.html">Senhas Emitidas</a></li>
+      <li><a href="tempo-medio.html">Tempo Médio (TME)</a></li>
+      <li><a href="tme-servico.html">TME por Serviço</a></li>
+      <li><a href="medias-gerais.html">Médias Gerais</a></li>
+      <li><a href="servicos-atendente.html">Serviços por Atendente</a></li>
+      <li><a href="tempo-saga.html">Tempo Médio no SAGA</a></li>
+      <li><a href="senhas-mes.html">Senhas Atendidas por Mês</a></li>
+    </ul>
+  </div>
+<div id="overlay"></div>
+<div class="top">      
+        <textarea id="inputTabela" placeholder="Cole aqui os dados da tabela (Serviço - Tempo)"></textarea>
+        <button onclick="preencherTabela()">Preencher</button>
+  </div>
+    <div class="container">
+  
+  
+  <section>
+    <table id="saga-table">
+      <thead>
+        <tr>
+          <th>Atendente</th>
+          <th>No SAGA</th>
+          <th>Atendendo Senha</th>
+          <th>Livre</th>
+          <th>Não Chamando</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td contenteditable="true">LUCIANA GONZAGA DA COSTA</td>
+          <td contenteditable="true">00:00:00</td>
+          <td contenteditable="true">00:00:00</td>
+          <td contenteditable="true">00:00:00</td>
+          <td contenteditable="true">00:00:00</td>
+        </tr>
+        <tr>
+          <td contenteditable="true">ISABELA MORAES OLIVEIRA AZAMBUJA</td>
+          <td contenteditable="true">00:00:00</td>
+          <td contenteditable="true">00:00:00</td>
+          <td contenteditable="true">00:00:00</td>
+          <td contenteditable="true">00:00:00</td>
+        </tr>
+        <tr>
+          <td contenteditable="true">MURIEL FIORESE</td>
+          <td contenteditable="true">00:00:00</td>
+          <td contenteditable="true">00:00:00</td>
+          <td contenteditable="true">00:00:00</td>
+          <td contenteditable="true">00:00:00</td>
+        </tr>
+        <tr>
+          <td contenteditable="true">JULLIA MEIRELLES SOARES</td>
+          <td contenteditable="true">00:00:00</td>
+          <td contenteditable="true">00:00:00</td>
+          <td contenteditable="true">00:00:00</td>
+          <td contenteditable="true">00:00:00</td>
+        </tr>
+        <tr>
+          <td contenteditable="true">WALLACE ALVES DE FREITAS</td>
+          <td contenteditable="true">00:00:00</td>
+          <td contenteditable="true">00:00:00</td>
+          <td contenteditable="true">00:00:00</td>
+          <td contenteditable="true">00:00:00</td>
+        </tr>
+        <tr>
+          <td contenteditable="true">RONAN MENDANHA PEREIRA</td>
+          <td contenteditable="true">00:00:00</td>
+          <td contenteditable="true">00:00:00</td>
+          <td contenteditable="true">00:00:00</td>
+          <td contenteditable="true">00:00:00</td>
+        </tr>
+        <tr>
+          <th>Total (Média Geral)</th>
+          <th id="total-saga">00:00:00</th>
+          <th id="total-atendendo">00:00:00</th>
+          <th id="total-livre">00:00:00</th>
+          <th id="total-nao-chamando">00:00:00</th>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+<div class="top">
+    <textarea id="inputSaga" placeholder="Cole aqui os dados da tabela (Atendente - No SAGA - Atendendo - Livre - Não Chamando)"></textarea>
+    <button onclick="preencherTabelaSaga()">Preencher</button>
+  </div>
+
+</div>
+<script src="script.js"></script>
+  <script>
+    // ==== Abrir / Fechar Modal ====
+document.addEventListener("DOMContentLoaded", () => {
+  const btnAbrir = document.getElementById("btnAbrirTop");
+  const overlay = document.getElementById("overlay");
+  const modais = document.querySelectorAll(".top");
+
+  if (btnAbrir && overlay && modais.length > 0) {
+    btnAbrir.addEventListener("click", () => {
+      overlay.style.display = "block";
+      modais.forEach((modal) => (modal.style.display = "flex"));
+    });
+
+    overlay.addEventListener("click", () => {
+      overlay.style.display = "none";
+      modais.forEach((modal) => (modal.style.display = "none"));
+    });
+  }
+
+  carregarTabelaSaga();
+});
+
+// ==== Acessar Sistema ====
+document.getElementById("btnAcessarSistema").addEventListener("click", () => {
+  window.open(
+    "https://saga.suiterfb.receita.fazenda/saga/www/principal.aspx?URL=Grupos/GrpRelatorios/Servicos/ucServicosAtendidos.ascx",
+    "_blank"
+  );
+});
+
+// ==== Utilitários de tempo ====
+function timeToSeconds(time) {
+  const [h, m, s] = time.split(":").map(Number);
+  return h * 3600 + m * 60 + s;
+}
+
+function secondsToTime(seconds) {
+  const h = String(Math.floor(seconds / 3600)).padStart(2, "0");
+  const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, "0");
+  const s = String(seconds % 60).padStart(2, "0");
+  return `${h}:${m}:${s}`;
+}
+
+// ==== Recalcula Totais ====
+function recalculateTotals() {
+  let totalSaga = 0,
+    totalAtendendo = 0,
+    totalLivre = 0,
+    totalNaoChamando = 0;
+  let count = 0;
+
+  const rows = document.querySelectorAll("#saga-table tbody tr");
+  rows.forEach((row, index) => {
+    if (index < rows.length - 1) {
+      const cells = row.querySelectorAll("td");
+      totalSaga += timeToSeconds(cells[1].innerText);
+      totalAtendendo += timeToSeconds(cells[2].innerText);
+      totalLivre += timeToSeconds(cells[3].innerText);
+      totalNaoChamando += timeToSeconds(cells[4].innerText);
+      count++;
+    }
+  });
+
+  if (count > 0) {
+    document.getElementById("total-saga").innerText = secondsToTime(
+      Math.floor(totalSaga / count)
+    );
+    document.getElementById("total-atendendo").innerText = secondsToTime(
+      Math.floor(totalAtendendo / count)
+    );
+    document.getElementById("total-livre").innerText = secondsToTime(
+      Math.floor(totalLivre / count)
+    );
+    document.getElementById("total-nao-chamando").innerText = secondsToTime(
+      Math.floor(totalNaoChamando / count)
+    );
+  }
+}
+
+// ==== LocalStorage ====
+function salvarTabelaSaga() {
+  const dados = [];
+  document.querySelectorAll("#saga-table tbody tr").forEach((row, index, arr) => {
+    if (index < arr.length - 1) {
+      const celulas = row.querySelectorAll("td");
+      const linha = Array.from(celulas).map((td) => td.innerText.trim());
+      dados.push(linha);
+    }
+  });
+  localStorage.setItem("sagaTable", JSON.stringify(dados));
+}
+
+function carregarTabelaSaga() {
+  const dados = JSON.parse(localStorage.getItem("sagaTable") || "[]");
+  const tableRows = document.querySelectorAll("#saga-table tbody tr");
+  dados.forEach((linha, i) => {
+    if (i < tableRows.length - 1) {
+      const celulas = tableRows[i].querySelectorAll("td");
+      linha.forEach((valor, j) => (celulas[j].innerText = valor));
+    }
+  });
+  recalculateTotals();
+}
+
+// ==== Eventos de edição ====
+document.querySelectorAll("#saga-table td[contenteditable]").forEach((cell) => {
+  cell.addEventListener("blur", () => {
+    salvarTabelaSaga();
+    recalculateTotals();
+  });
+});
+
+// ==== Preencher via textarea ====
+function preencherTabelaSaga() {
+  const texto = document.getElementById("inputSaga").value;
+  const linhas = texto.trim().split("\n");
+  const tableRows = document.querySelectorAll("#saga-table tbody tr");
+
+  linhas.forEach((linha) => {
+    const colunas = linha.split(/\t|;|,|\s{2,}/);
+    if (colunas.length >= 5) {
+      const atendente = colunas[0].trim().toLowerCase();
+      const valores = colunas.slice(1, 5).map((v) => v.trim());
+
+      tableRows.forEach((row, index) => {
+        if (index < tableRows.length - 1) {
+          const celulas = row.querySelectorAll("td");
+          const nomeAtendente = celulas[0].innerText.trim().toLowerCase();
+          if (nomeAtendente === atendente) {
+            for (let i = 0; i < 4; i++) {
+              celulas[i + 1].innerText = valores[i];
+            }
+          }
+        }
+      });
+    }
+  });
+
+  salvarTabelaSaga();
+  recalculateTotals();
+
+  // Fecha modal e limpa textarea
+  document.getElementById("overlay").style.display = "none";
+  document.querySelectorAll(".top").forEach((modal) => (modal.style.display = "none"));
+  document.getElementById("inputSaga").value = "";
+}
+
+  </script>
+
+</body>
+</html>

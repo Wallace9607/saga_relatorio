@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Senhas Emitidas e de Balcão</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  <nav>
+    <div class="nav-left">
+      <ul>
+        <li><a href="index.html"><i class="fas fa-home"></i> Início</a></li>
+      </ul>
+    </div>
+    <div class="nav-center">
+      <h1 style="margin-right: 30rem; padding: 20px;">Senhas Emitidas e de Balcão</h1>
+    </div>
+  </nav>
+
+  <div class="nav-lateral">
+    <ul>
+      <li><a href="servicos-prestados.html">Serviços Prestados</a></li>
+      <li><a href="senhas-emitidas.html">Senhas Emitidas</a></li>
+      <li><a href="tempo-medio.html">Tempo Médio (TME)</a></li>
+      <li><a href="tme-servico.html">TME por Serviço</a></li>
+      <li><a href="medias-gerais.html">Médias Gerais</a></li>
+      <li><a href="servicos-atendente.html">Serviços por Atendente</a></li>
+      <li><a href="tempo-saga.html">Tempo Médio no SAGA</a></li>
+      <li><a href="senhas-mes.html">Senhas Atendidas por Mês</a></li>
+    </ul>
+  </div>
+
+  <div class="container">
+
+    <section>
+      <button onclick="abrirSaga()">Abrir Link</button>
+      <table id="senhas-agendadas-table">
+        <thead>
+          <tr>
+            <th>Tipo</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Senhas Agendadas Emitidas</td>
+            <td contenteditable="true"></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <button onclick="abrirSaga()">Abrir Link</button>
+      <table id="senhas-balcao-table">
+        <thead>
+          <tr>
+            <th>Tipo</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Senhas de Balcão</td>
+            <td contenteditable="true"></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+  </div>
+
+  <script>
+    // Função para abrir o sistema
+    function abrirSaga() {
+      window.open(
+        "https://saga.suiterfb.receita.fazenda/saga/www/principal.aspx?URL=Grupos/GrpRelatorios/Triadores/ucHistoricoTriadores.ascx",
+        "_blank"
+      );
+    }
+
+    // Salvar os valores no localStorage
+    function salvarSenhas() {
+      const agendadas = [];
+      document.querySelectorAll('#senhas-agendadas-table tbody tr').forEach(row => {
+        agendadas.push(row.querySelectorAll('td')[1].innerText.trim());
+      });
+      localStorage.setItem('senhasAgendadas', JSON.stringify(agendadas));
+
+      const balcao = [];
+      document.querySelectorAll('#senhas-balcao-table tbody tr').forEach(row => {
+        balcao.push(row.querySelectorAll('td')[1].innerText.trim());
+      });
+      localStorage.setItem('senhasBalcao', JSON.stringify(balcao));
+    }
+
+    // Carregar os valores do localStorage
+    function carregarSenhas() {
+      const agendadas = JSON.parse(localStorage.getItem('senhasAgendadas') || '[]');
+      document.querySelectorAll('#senhas-agendadas-table tbody tr').forEach((row, i) => {
+        if (i < agendadas.length) row.querySelectorAll('td')[1].innerText = agendadas[i];
+      });
+
+      const balcao = JSON.parse(localStorage.getItem('senhasBalcao') || '[]');
+      document.querySelectorAll('#senhas-balcao-table tbody tr').forEach((row, i) => {
+        if (i < balcao.length) row.querySelectorAll('td')[1].innerText = balcao[i];
+      });
+    }
+
+    // Salva ao sair da célula
+    document.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll('#senhas-agendadas-table td[contenteditable], #senhas-balcao-table td[contenteditable]').forEach(cell => {
+        cell.addEventListener('blur', salvarSenhas);
+      });
+
+      carregarSenhas();
+    });
+  </script>
+</body>
+</html>

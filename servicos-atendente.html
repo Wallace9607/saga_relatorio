@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Serviços por Atendente</title>
+  <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+    <nav>
+  <!-- Grupo esquerdo -->
+  <div class="nav-left">
+    <ul>
+      <li><a href="index.html"><i class="fas fa-home"></i> Início</a></li>
+    </ul>
+  </div>
+
+  <!-- Grupo central -->
+  <div class="nav-center">
+    <h1>Serviços por Atendente</h1>
+  </div>
+
+  <!-- Grupo direito -->
+  <div class="nav-right">
+    <button id="btnAbrirTop">Colar</button>
+    <button id="btnAcessarSistema">Acessar Sistema</button>
+  </div>
+</nav>
+   <div class="nav-lateral">
+    <ul>
+      <li><a href="servicos-prestados.html">Serviços Prestados</a></li>
+      <li><a href="senhas-emitidas.html">Senhas Emitidas</a></li>
+      <li><a href="tempo-medio.html">Tempo Médio (TME)</a></li>
+      <li><a href="tme-servico.html">TME por Serviço</a></li>
+      <li><a href="medias-gerais.html">Médias Gerais</a></li>
+      <li><a href="servicos-atendente.html">Serviços por Atendente</a></li>
+      <li><a href="tempo-saga.html">Tempo Médio no SAGA</a></li>
+      <li><a href="senhas-mes.html">Senhas Atendidas por Mês</a></li>
+    </ul>
+  </div>
+<div id="overlay"></div>
+<div class="top">      
+        <textarea id="inputTabela" placeholder="Cole aqui os dados da tabela (Serviço - Tempo)"></textarea>
+        <button onclick="preencherTabela()">Preencher</button>
+  </div>
+    <div class="container">
+  
+
+  <section>
+    <table id="atendentes-table">
+      <thead>
+        <tr>
+          <th>Atendente</th>
+          <th>Totais</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>ISABELA MORAES OLIVEIRA AZAMBUJA</td><td contenteditable="true"></td></tr>
+        <tr><td>JULLIA MEIRELLES SOARES</td><td contenteditable="true"></td></tr>
+        <tr><td>LUCIANA GONZAGA DA COSTA</td><td contenteditable="true"></td></tr>
+        <tr><td>MURIEL FIORESE</td><td contenteditable="true"></td></tr>
+        <tr><td>RONAN MENDANHA PEREIRA</td><td contenteditable="true"></td></tr>
+        <tr><td>WALLACE ALVES DE FREITAS</td><td contenteditable="true"></td></tr>
+        <tr>
+          <th>Total Geral</th>
+          <th id="total-geral"></th>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+</div>
+
+  <script>
+    // Seleciona elementos
+const overlay = document.getElementById('overlay');
+const topModal = document.querySelector('.top');
+const btnAbrir = document.getElementById('btnAbrirTop');
+const textarea = document.getElementById('inputTabela');
+
+// Função para abrir o modal
+btnAbrir.addEventListener('click', () => {
+  overlay.style.display = 'block';
+  topModal.style.display = 'block';
+  textarea.focus();
+});
+
+// Fecha modal ao clicar no overlay
+overlay.addEventListener('click', () => {
+  overlay.style.display = 'none';
+  topModal.style.display = 'none';
+});
+
+// Função para preencher tabela
+function preencherTabela() {
+  const dados = textarea.value.trim();
+  if (!dados) return alert('Cole os dados antes de preencher.');
+
+  const linhas = dados.split('\n'); // Cada linha é um atendente
+  const tableRows = document.querySelectorAll('#atendentes-table tbody tr');
+
+  // Preenche cada linha correspondente (ignora a última linha do total)
+  for (let i = 0; i < linhas.length && i < tableRows.length - 1; i++) {
+    const partes = linhas[i].split('-'); // Espera formato "Serviço - Tempo"
+    const tempo = partes[1] ? partes[1].trim() : '';
+    tableRows[i].querySelectorAll('td')[1].innerText = tempo;
+  }
+
+  recalculateTotalGeral();
+  salvarValores();
+
+  // Fecha modal após preencher
+  overlay.style.display = 'none';
+  topModal.style.display = 'none';
+  textarea.value = '';
+}
+
+// --- Funções já existentes para recálculo e armazenamento ---
+function recalculateTotalGeral() {
+  let total = 0;
+  const rows = document.querySelectorAll('#atendentes-table tbody tr');
+  rows.forEach((row, index) => {
+    if (index < rows.length - 1) {
+      const cell = row.querySelectorAll('td')[1];
+      const val = parseInt(cell.innerText.trim());
+      if (!isNaN(val)) total += val;
+    }
+  });
+  document.getElementById('total-geral').innerText = total;
+}
+
+function salvarValores() {
+  const dados = [];
+  document.querySelectorAll('#atendentes-table tbody tr').forEach((row, index) => {
+    if (index < document.querySelectorAll('#atendentes-table tbody tr').length - 1) {
+      const val = row.querySelectorAll('td')[1].innerText.trim();
+      dados.push(val);
+    }
+  });
+  localStorage.setItem('valoresAtendentes', JSON.stringify(dados));
+}
+
+function carregarValores() {
+  const dados = JSON.parse(localStorage.getItem('valoresAtendentes') || '[]');
+  document.querySelectorAll('#atendentes-table tbody tr').forEach((row, index) => {
+    if (index < dados.length) {
+      row.querySelectorAll('td')[1].innerText = dados[index];
+    }
+  });
+  recalculateTotalGeral();
+}
+
+// Eventos para salvar ao editar células
+document.querySelectorAll('#atendentes-table td[contenteditable]').forEach(cell => {
+  cell.addEventListener('blur', salvarValores);
+});
+
+// Carrega valores ao abrir a página
+window.addEventListener('load', carregarValores);
+
+  </script>
+</body>
+</html>

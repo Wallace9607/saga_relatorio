@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>TME por Serviço</title>
+  <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  <nav>
+  <!-- Grupo esquerdo -->
+  <div class="nav-left">
+    <ul>
+      <li><a href="index.html"><i class="fas fa-home"></i> Início</a></li>
+    </ul>
+  </div>
+
+  <!-- Grupo central -->
+  <div class="nav-center">
+    <h1>TME por Serviço</h1>
+  </div>
+
+  <!-- Grupo direito -->
+  <div class="nav-right">
+    <button id="btnAbrirTop">Colar</button>
+    <button id="btnAcessarSistema">Acessar Sistema</button>
+  </div>
+</nav>
+   <div class="nav-lateral">
+    <ul>
+      <li><a href="servicos-prestados.html">Serviços Prestados</a></li>
+      <li><a href="senhas-emitidas.html">Senhas Emitidas</a></li>
+      <li><a href="tempo-medio.html">Tempo Médio (TME)</a></li>
+      <li><a href="tme-servico.html">TME por Serviço</a></li>
+      <li><a href="medias-gerais.html">Médias Gerais</a></li>
+      <li><a href="servicos-atendente.html">Serviços por Atendente</a></li>
+      <li><a href="tempo-saga.html">Tempo Médio no SAGA</a></li>
+      <li><a href="senhas-mes.html">Senhas Atendidas por Mês</a></li>
+    </ul>
+  </div>
+<div id="overlay"></div>
+<div class="top">      
+        <textarea id="inputTabela" placeholder="Cole aqui os dados da tabela (Serviço - Tempo)"></textarea>
+        <button onclick="preencherTabela()">Preencher</button>
+  </div>
+  <div class="container">
+    
+    
+
+    <section>
+      <table id="tme-servico-table">
+        <thead>
+          <tr>
+            <th>Serviço</th>
+            <th>TME</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>AO Conta GovBr</td><td contenteditable="true">00:00:00</td></tr>
+          <tr><td>AO Cópia de Documentos ou Declarações</td><td contenteditable="true">00:00:00</td></tr>
+          <tr><td>AO CPF</td><td contenteditable="true">00:00:00</td></tr>
+          <tr><td>AO Emissão de Documentos de Arrecadação</td><td contenteditable="true">00:00:00</td></tr>
+          <tr><td>AO Orientações</td><td contenteditable="true">00:00:00</td></tr>
+          <tr><td>AO Outros</td><td contenteditable="true">00:00:00</td></tr>
+          <tr><td>AO Parcelamento</td><td contenteditable="true">00:00:00</td></tr>
+          <tr><td>AO Pesquisa Fiscal e Cadastral</td><td contenteditable="true">00:00:00</td></tr>
+          <tr><td>Consulta de Débitos e Pendências - Protocolar</td><td contenteditable="true">00:00:00</td></tr>
+          <tr><td>Consultar Débitos e Pendências</td><td contenteditable="true">00:00:00</td></tr>
+          <tr><td>CPF Emissão do Comprovante de Inscrição - Protocolar</td><td contenteditable="true">00:00:00</td></tr>
+          <tr><td>CPF Inscrição, Atualização ou Cancelamento - Protocolar</td><td contenteditable="true">00:00:00</td></tr>
+          <tr><td>Documentos de Malha IRPF - Protocolar</td><td contenteditable="true">00:00:00</td></tr>
+          <tr><td>Emissão de DARF, DAE ou DAS - Protocolar</td><td contenteditable="true">00:00:00</td></tr>
+          <tr><td>Emissão de GPS - Protocolar</td><td contenteditable="true">00:00:00</td></tr>
+          <tr><td>Entregar Declaração</td><td contenteditable="true">00:00:00</td></tr>
+          <tr><td>Obter Cópia de Declarações e Processos</td><td contenteditable="true">00:00:00</td></tr>
+          <tr><td>Requerimentos e Processos - Protocolar</td><td contenteditable="true">00:00:00</td></tr>
+          <tr><td>Solicitação de Cópia de Declarações e Processos - Protocolar</td><td contenteditable="true">00:00:00</td></tr>
+          <tr>
+            <th>Média Total</th>
+            <th id="media-total">00:00:00</th>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+  </div>
+  <script>
+   // ==== Abrir / Fechar Modal ====
+document.addEventListener("DOMContentLoaded", () => {
+  const btnAbrir = document.getElementById("btnAbrirTop");
+  const overlay = document.getElementById("overlay");
+  const modais = document.querySelectorAll(".top");
+
+  if (btnAbrir && overlay && modais.length > 0) {
+    btnAbrir.addEventListener("click", () => {
+      overlay.style.display = "block";
+      modais.forEach((modal) => (modal.style.display = "flex"));
+    });
+
+    overlay.addEventListener("click", () => {
+      overlay.style.display = "none";
+      modais.forEach((modal) => (modal.style.display = "none"));
+    });
+  }
+
+  carregarTabelaTME();
+});
+
+// ==== Acessar Sistema ====
+document.getElementById("btnAcessarSistema").addEventListener("click", () => {
+  window.open(
+    "https://saga.suiterfb.receita.fazenda/saga/www/principal.aspx?URL=Grupos/GrpRelatorios/Servicos/ucServicosAtendidos.ascx",
+    "_blank"
+  );
+});
+
+// ==== Utilitários de tempo ====
+function timeToSeconds(time) {
+  const [h, m, s] = time.split(":").map(Number);
+  return h * 3600 + m * 60 + s;
+}
+
+function secondsToTime(seconds) {
+  const h = String(Math.floor(seconds / 3600)).padStart(2, "0");
+  const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, "0");
+  const s = String(seconds % 60).padStart(2, "0");
+  return `${h}:${m}:${s}`;
+}
+
+// ==== Média Total ====
+function recalculateMediaTotal() {
+  let totalSeconds = 0;
+  let count = 0;
+  const rows = document.querySelectorAll("#tme-servico-table tbody tr");
+
+  rows.forEach((row, index) => {
+    if (index < rows.length - 1) {
+      const cell = row.querySelectorAll("td")[1];
+      const val = cell.innerText.trim();
+      if (/^\d{2}:\d{2}:\d{2}$/.test(val)) {
+        totalSeconds += timeToSeconds(val);
+        count++;
+      }
+    }
+  });
+
+  const avgSeconds = count > 0 ? Math.floor(totalSeconds / count) : 0;
+  document.getElementById("media-total").innerText = secondsToTime(avgSeconds);
+}
+
+// ==== LocalStorage ====
+function salvarTabelaTME() {
+  const dados = [];
+  document
+    .querySelectorAll("#tme-servico-table tbody tr")
+    .forEach((row, index, arr) => {
+      if (index < arr.length - 1) {
+        const celulas = row.querySelectorAll("td");
+        const linha = Array.from(celulas).map((td) => td.innerText.trim());
+        dados.push(linha);
+      }
+    });
+  localStorage.setItem("tmeServicoTable", JSON.stringify(dados));
+}
+
+function carregarTabelaTME() {
+  const dados = JSON.parse(localStorage.getItem("tmeServicoTable") || "[]");
+  const tableRows = document.querySelectorAll("#tme-servico-table tbody tr");
+  dados.forEach((linha, i) => {
+    if (i < tableRows.length - 1) {
+      const celulas = tableRows[i].querySelectorAll("td");
+      linha.forEach((valor, j) => (celulas[j].innerText = valor));
+    }
+  });
+  recalculateMediaTotal();
+}
+
+// ==== Eventos de edição ====
+document.querySelectorAll("#tme-servico-table td[contenteditable]").forEach(
+  (cell) => {
+    cell.addEventListener("blur", () => {
+      salvarTabelaTME();
+      recalculateMediaTotal();
+    });
+  }
+);
+
+// ==== Preencher via textarea ====
+function preencherTabela() {
+  const texto = document.getElementById("inputTabela").value;
+  const linhas = texto.trim().split("\n");
+  const tableRows = document.querySelectorAll("#tme-servico-table tbody tr");
+
+  linhas.forEach((linha) => {
+    const colunas = linha.split(/\t|;|,|\s{2,}/);
+    if (colunas.length >= 2) {
+      const servico = colunas[0].trim().toLowerCase();
+      const tempo = colunas[1].trim();
+
+      tableRows.forEach((row, index) => {
+        if (index < tableRows.length - 1) {
+          const celulas = row.querySelectorAll("td");
+          const nomeServico = celulas[0].innerText.trim().toLowerCase();
+          if (nomeServico === servico) {
+            celulas[1].innerText = tempo;
+          }
+        }
+      });
+    }
+  });
+
+  salvarTabelaTME();
+  recalculateMediaTotal();
+
+  // Fecha modal e limpa textarea
+  document.getElementById("overlay").style.display = "none";
+  document
+    .querySelectorAll(".top")
+    .forEach((modal) => (modal.style.display = "none"));
+  document.getElementById("inputTabela").value = "";
+}
+
+  </script>
+</body>
+</html>

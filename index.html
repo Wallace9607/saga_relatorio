@@ -1,0 +1,732 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Relatório SAGA - Página Principal</title>
+  <style>
+    :root{
+      --rf-blue-dark:  #0b3d91;
+      --rf-blue:       #1d5fc4;
+      --rf-blue-light: #6ea8ff;
+      --rf-gold:       #f2c200;
+      --rf-gold-dark:  #d19a00;
+      --rf-bg:         #f5f7fb;
+      --rf-surface:    #ffffff;
+      --rf-muted:      #6b7280;
+      --rf-on-dark:    #ffffff;
+      --rf-on-light:   #0b1b2b;
+
+      --primary: #0b3d91;
+      --secondary: #f0f0f0;
+      --text: #333;
+      --muted: #666;
+      --card-bg: #fff;
+      --border: #ddd;
+      --header-bg: #e6e6e6;
+      --accent: #0b6efd;
+      --shadow: rgba(0,0,0,0.1);
+    }
+
+body {
+  font-family: 'Arial', sans-serif;
+  background-image: url(img/f03.jpeg);
+  background-attachment: fixed;
+  background-size: cover;
+  background-repeat: no-repeat;
+  color: var(--text);
+  margin: 0;
+  padding: 0;
+  font-size: 0.85em; /* reduz tipografia */
+}
+/* Camada de vidro fosco */
+.container {
+
+  background: rgba(255, 255, 255, 0.048); /* transparente para mostrar o fundo */
+  backdrop-filter: blur(2px); /* efeito vidro */
+  -webkit-backdrop-filter: blur(2px); /* compatibilidade Safari */
+}
+    /* Menu lateral */
+nav {
+  position: fixed;
+  top: 0;               /* começa no topo */
+  left: 0;
+  height: 100%;
+  width: 240px;
+  background: var(--rf-blue-dark);
+  color: var(--rf-on-dark);
+  padding-top: 60px;    /* espaço p/ título ou logo */
+  box-shadow: 2px 0 8px rgba(0,0,0,0.2);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+nav h1 {
+  position: absolute;
+  top: 10px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: var(--rf-gold);
+  margin: 0;
+}
+
+nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+nav ul li {
+  margin: 6px 0;
+}
+
+nav ul li a {
+  display: block;
+  padding: 12px 20px;
+  margin: 0 8px;
+  border-radius: 6px;
+  color: var(--rf-on-dark);
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: background 0.3s, color 0.3s, transform 0.2s;
+}
+
+nav ul li a:hover {
+  background: var(--rf-gold);
+  color: var(--rf-on-light);
+  transform: translateX(4px);
+}
+
+/* Estado ativo (página atual) */
+nav ul li a.active {
+  background: var(--rf-blue);
+  color: var(--rf-on-dark);
+}
+
+    /* Conteúdo principal */
+    main {
+      margin-left: 240px;
+      padding: 20px;
+    }
+
+.contentpdf {
+  background: #fff;
+  padding: 36px;
+  width: 100%;
+  max-width: 695px; /* 80% de 794px */
+  margin: 0 auto;
+  box-shadow: 0 3px 12px var(--shadow);
+  border-radius: 6px;
+  transform: scale(0.95); /* opcional, aumenta compactação */
+  transform-origin: top left;
+}
+
+header h1 {
+  text-align: center;
+  color: var(--primary);
+  font-size: 1.05em;
+  margin-bottom: 3px;
+}
+
+.meta {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.75em;
+  margin-bottom: 15px;
+}
+
+h2 {
+  color: var(--primary);
+  border-bottom: 2px solid var(--primary);
+  padding-bottom: 4px;
+  margin-top: 24px;
+  margin-bottom: 8px;
+  font-size: 1em;
+}
+
+h3 {
+  color: var(--accent);
+  margin-top: 16px;
+  margin-bottom: 8px;
+  font-size: 0.9em;
+}
+
+h4 {
+  color: var(--primary);
+  margin-top: 12px;
+  margin-bottom: 4px;
+  font-size: 0.85em;
+}
+
+/* ===== Estilo padrão para todos os parágrafos ===== */
+p {
+  font-family: 'Arial', sans-serif; /* Mesma fonte do body */
+  font-size: 0.95em; /* Ajuste o tamanho desejado */
+  line-height: 1.5; /* Espaçamento entre linhas */
+  color: var(--text); /* Cor padrão */
+  margin: 0 0 12px 0; /* Espaçamento inferior entre parágrafos */
+}
+
+/* Se quiser manter pequenas diferenças para classes existentes */
+p.small {
+  font-size: 0.85em; /* ligeiramente menor */
+}
+
+p.muted {
+  color: var(--muted);
+}
+
+p.muted.small {
+  font-size: 0.85em;
+  color: var(--muted);
+}
+
+
+ul {
+  margin-left: 16px;
+  margin-bottom: 8px;
+  font-size: 0.75em;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 12px;
+  font-size: 0.75em;
+}
+
+table, th, td {
+  border: 1px solid var(--border);
+}
+
+th, td {
+  padding: 6px;
+  text-align: left;
+}
+
+th {
+  background: var(--primary);
+  color: #fff;
+}
+
+tfoot th {
+  background: var(--primary);
+  color: #fff;
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.kpis {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.kpis .card {
+  flex: 1;
+  min-width: 120px;
+  background: #a9cbff;
+  border: 1px solid var(--border);
+  padding: 10px;
+  border-radius: 6px;
+  text-align: center;
+  box-shadow: 0 1.5px 6px var(--shadow);  
+  font-size: 0.65em;
+}
+
+.kpis .label {
+  font-weight: bold;
+  margin-bottom: 4px;
+
+}
+
+.kpis .val {
+  font-size: 1.3em;
+  color: #000;
+  margin-bottom: 4px;
+}
+
+.signature {
+  margin-top: 40px;
+  text-align: left;
+  font-size: 0.85em;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+canvas {
+  width: 80% !important;
+  height: 80% !important;
+  margin: 2rem 0 2rem 4rem;
+}
+
+.actions {
+  margin: 80px 20px;
+  display: flex;
+  gap: 8px;
+
+}
+
+
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.2rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #000;
+  background: var(--rf-gold);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.btn:hover {
+  background: var(--rf-blue-light);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+}
+
+.btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.btn:focus {
+  outline: 2px solid var(--rf-blue-light);
+  outline-offset: 2px;
+}
+
+/* Cores específicas */
+.btn-primary {
+  background: var(--rf-blue);
+}
+
+.btn-secondary {
+  background: var(--rf-blue-dark);
+}
+
+.btn-danger {
+  background: #d9534f;
+}
+
+.btn-success {
+  background: #28a745;
+}
+.sources {
+  display: none;
+}
+/* Quebra de página */
+.page-break {
+  display: block;
+  page-break-before: always; /* força nova página antes */
+ page-break-after: always;  /* força nova página depois (opcional) */
+}
+
+/* Alternativa: só antes da próxima página */
+.page-break-before {
+  page-break-before: always;
+}
+
+/* ===== Estilo para exportação em PDF ===== */
+@media print {
+  body {
+    background: #fff !important;
+    -webkit-print-color-adjust: exact;
+    color-adjust: exact;
+  }
+  .contentpdf {
+    box-shadow: none !important;
+    border: none !important;
+    max-width: 120mm !important;
+    margin: 0 auto !important;
+    transform: scale(0.95);
+    transform-origin: top left;
+    width: 100%;
+  }
+
+    .page-break {
+    display: block;
+
+  }
+  /* Alternativa: só antes da próxima página */
+.page-break-before {
+  page-break-before: always;
+}
+
+  .actions {
+    display: none !important;
+  }
+  h2, h3, h4 {
+    page-break-after: avoid;
+    page-break-inside: avoid;
+  }
+  table {
+    page-break-inside: auto;
+  }
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+  .page-break {
+    page-break-before: always;
+  }
+    table { page-break-inside: auto; }
+  tr { page-break-inside: avoid; page-break-after: auto; }
+  h2, h3, h4 { page-break-after: avoid; page-break-inside: avoid; }
+  .kpis .card { page-break-inside: avoid; }
+  .sources{
+    display: none;
+  }
+}
+  </style>
+</head>
+<body>
+  
+  <nav>
+    
+    <ul>
+      <li><a href="servicos-prestados.html">Serviços Prestados</a></li>
+      <li><a href="senhas-emitidas.html">Senhas Emitidas</a></li>
+      <li><a href="tempo-medio.html">Tempo Médio (TME)</a></li>
+      <li><a href="tme-servico.html">TME por Serviço</a></li>
+      <li><a href="medias-gerais.html">Médias Gerais</a></li>
+      <li><a href="servicos-atendente.html">Serviços por Atendente</a></li>
+      <li><a href="tempo-saga.html">Tempo Médio no SAGA</a></li>
+      <li><a href="senhas-mes.html">Senhas Atendidas por Mês</a></li>
+    </ul>
+      <!-- Ações -->
+<div class="actions">
+  <button class="btn primary" id="btn-pdf">PDF</button>
+</div>
+  <!-- Fontes: iframes ocultos -->
+<div class="sources" id="sources">
+  <iframe src="servicos-atendente.html" id="if-att" onload="carregarDados()"></iframe>
+  <iframe src="tempo-medio.html" id="if-tm" onload="carregarDados()"></iframe>
+  <iframe src="senhas-emitidas.html" id="if-senhas" onload="carregarDados()"></iframe>
+  <iframe src="tme-servico.html" id="if-tme-serv" onload="carregarDados()"></iframe>
+  <iframe src="servicos-prestados.html" id="if-tma-serv" onload="carregarDados()"></iframe>
+  <iframe src="tempo-saga.html" id="if-saga" onload="carregarDados()"></iframe>
+  <iframe src="medias-gerais.html" id="if-medias" onload="carregarDados()"></iframe>
+  <iframe src="senhas-mes.html" id="if-senhas-mes" onload="carregarDados()"></iframe>
+</div>
+  </nav>
+
+  <main class="container">
+   
+  <div class="contentpdf" id="print"  contenteditable="true">
+    
+      <header>
+        <h1>RELATÓRIO MENSAL DE ATIVIDADES DE ATENDIMENTO</h1>
+        <div class="meta">
+          Agência da Receita Federal do Brasil em <b>Rio Verde/GO</b> •
+          Período: <span id="periodo"></span> •
+          Emissão: <span id="emissao"></span>
+        </div>
+      </header>
+      <!-- 1. Introdução -->
+      <h2> INTRODUÇÃO</h2>
+      <p class="muted small">
+        Este relatório consolida e analisa as atividades de atendimento presencial da Agência da
+        Receita Federal em Rio Verde/GO, referentes ao mês de [Mês] de [Ano], realizadas em
+        conformidade com as diretrizes da Portaria RFB nº 4.261, de 16 de março de 2020, na redação dada
+        pela Portaria RFB nº 399, de 15 de março de 2024. 
+      </p>
+      <p class="muted small">
+        O documento abrange os serviços prestados nas modalidades de Atendimento Presencial 
+        Avançado (APA), Autoatendimento Orientado (AAO), além de serviços de natureza diversa, 
+        protocolados mediante emissão de senha de balcão.
+      </p>
+      <p class="muted small">
+        A análise, baseada em dados extraídos do sistema SAGA, tem como foco a avaliação 
+        da eficiência operacional, a identificação das principais demandas e a proposição de ações para o
+        contínuo aprimoramento do serviço prestado ao cidadão.
+      </p>
+
+      <!-- 2. Panorama Geral -->
+      <h2> PANORAMA GERAL DO ATENDIMENTO</h2>
+      <p>Análise sintética dos principais indicadores de desempenho (KPIs).</p>
+      <div class="kpis">
+        <div class="card">
+          <div class="label">Total de Atendimentos</div>
+          <div class="val" id="kpi-total-atend">—</div>
+          <div class="muted small">Soma por atendente</div>
+        </div>
+        <div class="card">
+          <div class="label">TME (espera)</div>
+          <div class="val" id="kpi-tme">—</div>
+          <div class="muted small">De <i>Indicadores de Tempo</i></div>
+        </div>
+        <div class="card">
+          <div class="label">TMA (atendimento)</div>
+          <div class="val" id="kpi-tma">—</div>
+          <div class="muted small">De <i>Indicadores de Tempo</i></div>
+        </div>
+        <div class="card">
+          <div class="label">Balcão vs. Agendadas</div>
+          <div class="val"><span id="kpi-balcao">—</span> / <span id="kpi-agendadas">—</span></div>
+          <div class="muted small">De <i>Senhas Emitidas</i></div>
+        </div>
+      </div>
+      <p>Análise Preliminar: O mês operou dentro de parâmetros de excelência, com TME 
+        abaixo da meta estabelecida, demonstrando eficiência no fluxo de triagem e 
+        atendimento, mesmo com significativa demanda espontânea (72%).
+      </p>
+
+      <!-- 3. Análise detalhada por serviço -->
+      <h2> ANÁLISE DETALHADA POR SERVIÇO</h2>
+      <p>Identificação de gargalos e eficiências para direcionamento estratégico.</p>
+      <div class="grid2">
+        <div>
+          <h3>Serviços críticos (maior TME)</h3>
+          <table id="tbl-criticos">
+            <thead><tr><th>Serviço</th><th>TME</th><th>TMA</th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <p class="small muted">Fonte: <i>TME por Serviço</i>.</p>
+        </div>
+        <div>
+          <h3>AAO – serviços mais ágeis (menor TMA)</h3>
+          <table id="tbl-aao">
+            <thead><tr><th>Serviço</th><th>TME</th><th>TMA</th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <p class="small muted">Fonte: <i>Tempo Médio de Atendimento por Serviço</i>.</p>
+        </div>
+      </div>
+
+      <p>
+        Conclusão: Os serviços protocolares representam os principais gargalos. 
+        Recomenda-se intensificar o direcionamento prévio para canais digitais (e-CAC, 
+        Caixa Corporativa) e revisão do processo interno para estes itens.
+      </p>
+
+      <!-- 4. Desempenho da equipe -->
+          <h2> DESEMPENHO DA EQUIPE E ALOCAÇÃO DE RECURSOS</h2>
+          <p>Análise de produtividade e eficiência operacional.</p>
+
+          <h3> Ranking de produtividade</h3>
+          <table id="tbl-ranking">
+            <thead>
+              <tr><th>#</th><th>Atendente</th><th>Atendimentos</th><th>% do total</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>1</td><td>WALLACE ALVES DE FREITAS</td><td>260</td><td>46.9%</td></tr>
+              <tr><td>2</td><td>JULLIA MEIRELLES SOARES</td><td>98</td><td>17.7%</td></tr>
+              <tr><td>3</td><td>RONAN MENDANHA PEREIRA</td><td>86</td><td>15.5%</td></tr>
+              <tr><td>4</td><td>MURIEL FIORESE</td><td>62</td><td>11.2%</td></tr>
+              <tr><td>5</td><td>ISABELA MORAES OLIVEIRA AZAMBUJA</td><td>41</td><td>7.4%</td></tr>
+              <tr><td>6</td><td>LUCIANA GONZAGA DA COSTA</td><td>7</td><td>1.3%</td></tr>
+            </tbody>
+            <tfoot>
+              <tr><th colspan="2">Total</th><th id="rank-total">554</th><th>100%</th></tr>
+            </tfoot>
+          </table>
+
+          <canvas id="chart-ranking" height="150"></canvas>
+
+          <h3> Ocupação no SAGA</h3>
+          <table id="tbl-saga">
+            <thead>
+              <tr><th>Atendente</th><th>No SAGA</th><th>Atendendo</th><th>Taxa de Ocupação</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>LUCIANA GONZAGA DA COSTA</td><td>00:00:00</td><td>00:51:52</td><td>56%</td></tr>
+              <tr><td>ISABELA MORAES OLIVEIRA AZAMBUJA</td><td>04:42:09</td><td>00:40:15</td><td>14%</td></tr>
+              <tr><td>MURIEL FIORESE</td><td>03:28:23</td><td>00:03:47</td><td>2%</td></tr>
+              <tr><td>JULLIA MEIRELLES SOARES</td><td>07:30:37</td><td>00:02:03</td><td>0%</td></tr>
+              <tr><td>WALLACE ALVES DE FREITAS</td><td>07:02:58</td><td>00:10:09</td><td>2%</td></tr>
+              <tr><td>RONAN MENDANHA PEREIRA</td><td>05:12:00</td><td>01:10:54</td><td>23%</td></tr>
+            </tbody>
+            <tfoot>
+              <tr><th>Média</th><th id="saga-avg-sess">04:54:40</th><th id="saga-avg-att">00:29:50</th><th id="saga-avg-occ">10%</th></tr>
+            </tfoot>
+          </table>
+
+          <canvas id="chart-saga" height="150"></canvas>
+
+          <p>
+            Observação: A baixa taxa de ocupação de alguns servidores não indica ociosidade, 
+            mas sim a execução de outras atividades administrativas e de suporte aos colegas, 
+            conforme determinação da gestão. 
+          </p>
+
+          <section id="implementacoes">
+            <h2> IMPLEMENTAÇÕES EM CURSO: Avanços atuais e próximos desafios</h2>
+            <p>Com base na análise dos dados, as seguintes ações são propostas:</p>
+
+            <h3> Otimização de Processos</h3>
+
+            <h4>Para reduzir o TME (Tempo Médio de Espera)</h4>
+            <p>Reforçar a triagem estratégica, identificando e redirecionando demandas de alto tempo médio de espera (como emissão de DARF e protocolo de Requerimentos) para canais alternativos:</p>
+            <ul>
+              <li>Portal e-CAC</li>
+              <li>Fale Conosco</li>
+              <li>Caixa Corporativa</li>
+            </ul>
+            <p>Essa medida visa descongestionar o atendimento presencial e reduzir significativamente o tempo de espera dos cidadãos.</p>
+
+            <h4>Para reduzir o TMA (Tempo Médio de Atendimento)</h4>
+            <p>Otimizar a triagem para internalização de serviços com um checklist que assegure:</p>
+            <ul>
+              <li>Ficha preenchida</li>
+              <li>Assinatura conferida</li>
+              <li>Documentação pertinente e exigível verificada para cada serviço</li>
+            </ul>
+
+            <h3> Capacitação e Alinhamento</h3>
+            <p>Promover reuniões ágeis para treinamento contínuo da equipe, com foco em:</p>
+            <ul>
+              <li>Correção de falhas (triagem e atendimento)</li>
+              <li>Reforço de procedimentos críticos</li>
+              <li>Esclarecimento de dúvidas operacionais</li>
+            </ul>
+            <p>As pautas serão definidas a partir do dia a dia.</p>
+
+            <h2> Reforço da Comunicação e Gestão Digital</h2>
+            <p><strong>Objetivo:</strong> Migrar demandas do atendimento presencial para os canais digitais, promovendo a autonomia do contribuinte e melhorando a eficiência do serviço.</p>
+
+            <h3> Divulgação Ativa e Orientação Proativa</h3>
+            <p>Comunicar massivamente, por todos os canais disponíveis (site, telefone, mural, triagem presencial), a preferência e as vantagens dos canais digitais:</p>
+            <ul>
+              <li><strong>Para Protocolo:</strong> Incentivar o uso do e-CAC, Portal de Serviços RFB e Caixa Corporativa</li>
+              <li><strong>Para Situação Tributária:</strong> Promover a autorregularização e o acompanhamento autônomo da situação fiscal pelo contribuinte</li>
+              <li><strong>Para Serviços PGFN:</strong> Direcionar para a plataforma Regularize</li>
+              <li><strong>Para Dúvidas Específicas:</strong> Orientar para o uso do Fale Conosco e do Chat (quando aplicável)</li>
+              <li><strong>Por Telefone:</strong> Padronizar o direcionamento para os links de consultas públicas no site da RFB e canais de atendimento virtual (e-CAC e outros), informando sobre PAVs, caixa corporativa e outros canais alternativos quando necessário</li>
+            </ul>
+
+            <h3> Suporte ao Contribuinte</h3>
+            <p>Facilitar o uso dos canais digitais por meio de materiais de apoio:</p>
+            <ul>
+              <li><strong>Material Didático:</strong> Utilizar e divulgar passo a passo disponibilizado pela DIAT e outros setores</li>
+              <li><strong>Conteúdo Próprio:</strong> Desenvolver materiais (guias, checklists, tutoriais) baseados nas dúvidas e necessidades mais frequentes identificadas no atendimento</li>
+            </ul>
+
+            <h2> Projetos Futuros / Melhoria Contínua</h2>
+            <h3> Otimização de Processos</h3>
+            <p>Realizar análise e revisão periódica dos fluxos de trabalho e orientações, visando melhoria contínua na prestação de serviços e no atendimento ao cidadão.</p>
+
+            <h3> Início do Piloto do Balcão Gov</h3>
+            <p>Aguardando definição de data para início do projeto.</p>
+<div class="page-break"></div>
+            <h2> Gestão de Reputação Online</h2>
+            <h3> Monitoramento da Página no Google</h3>
+            <p>Atualizar frequentemente as informações de contato e serviços na página da agência de Rio Verde no Google Meu Negócio.</p>
+
+            <h3> Resposta Proativa</h3>
+            <p>Monitorar e responder de forma ágil e profissional a todas as avaliações, perguntas, críticas e elogios, demonstrando compromisso com o feedback do usuário.</p>
+
+            <h2> Monitoramento</h2>
+            <p>Monitoramento contínuo das ações implementadas, rotinas administrativas e processos de trabalho, com foco em:</p>
+            <ul>
+              <li>Efetividade e conclusividade</li>
+              <li>Satisfação com o atendimento presencial, telefônico e canais alternativos</li>
+              <li>Acompanhamento da evolução do TME e TMA, especialmente nos serviços críticos após a implementação das ações</li>
+            </ul>
+          </section>
+
+          <!-- 7. Conclusão -->
+              <section id="conclusao">
+                <h2> CONCLUSÃO</h2>
+                <p>
+                  A Agência de Rio Verde/GO manteve operação dentro de padrões de excelência no mês de
+                  <strong>[Mês]</strong>, com indicadores de eficiência (TME e TMA) dentro das metas preconizadas. 
+                </p>
+                <p>
+                  A análise permitiu identificar pontos específicos de melhoria, focados nos serviços protocolares, 
+                  que serão alvo de ações estratégicas no próximo período, garantindo a contínua evolução na 
+                  qualidade do serviço prestado ao cidadão.
+                </p>
+              </section>
+
+              <!-- Assinatura -->
+              <div class="signature">
+                <p>Atenciosamente,</p>
+                <p><b>Luciana Gonzaga da Costa Fernandes</b><br> Titular - Agência da Receita Federal em Rio Verde/GO</p>
+              </div>
+  </div>
+  </main>
+  
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="script.js"></script>
+  <script>
+    // Ranking de Produtividade - Pie Chart
+    const ctxRanking = document.getElementById('chart-ranking');
+    new Chart(ctxRanking, {
+      type: 'pie',
+      data: {
+        labels: [
+          "WALLACE ALVES DE FREITAS",
+          "JULLIA MEIRELLES SOARES",
+          "RONAN MENDANHA PEREIRA",
+          "MURIEL FIORESE",
+          "ISABELA MORAES OLIVEIRA AZAMBUJA",
+          "LUCIANA GONZAGA DA COSTA"
+        ],
+        datasets: [{
+          data: [260, 98, 86, 62, 41, 7],
+          backgroundColor: [
+            "#4e79a7", "#f28e2b", "#e15759", "#76b7b2", "#59a14f", "#edc949"
+          ]
+        }]
+      },
+      options: {
+        plugins: {
+          title: { display: true, text: 'Distribuição de Atendimentos (%)' }
+        }
+      }
+    });
+
+    // Ocupação no SAGA - Bar Chart
+    const ctxSaga = document.getElementById('chart-saga');
+    new Chart(ctxSaga, {
+      type: 'bar',
+      data: {
+        labels: [
+          "LUCIANA GONZAGA DA COSTA",
+          "ISABELA MORAES OLIVEIRA AZAMBUJA",
+          "MURIEL FIORESE",
+          "JULLIA MEIRELLES SOARES",
+          "WALLACE ALVES DE FREITAS",
+          "RONAN MENDANHA PEREIRA"
+        ],
+        datasets: [{
+          label: "Taxa de Ocupação (%)",
+          data: [56, 14, 2, 0, 2, 23],
+          backgroundColor: "#4e79a7"
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        scales: {
+          x: { beginAtZero: true, max: 100 }
+        },
+        plugins: {
+          title: { display: true, text: 'Ocupação no SAGA (%)' }
+        }
+      }
+    });
+
+    
+  </script>
+</body>
+</html>
