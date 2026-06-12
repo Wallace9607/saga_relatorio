@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>SAGA — Entrada de Dados</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root {
+  --blue-dark: #0b3d91;
+  --blue:      #1d5fc4;
+  --blue-light:#6ea8ff;
+  --gold:      #f2c200;
+  --gold-dark: #d19a00;
+  --bg:        #f5f7fb;
+  --surface:   #ffffff;
+  --muted:     #6b7280;
+  --on-dark:   #ffffff;
+  --on-light:  #0b1b2b;
+  --border:    #d1d5db;
+  --shadow:    rgba(11,61,145,0.10);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, sans-serif; background: var(--bg); color: var(--on-light); min-height: 100vh; }
+
+/* ── TOP BAR ── */
+.topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  background: linear-gradient(90deg, var(--blue-dark), var(--blue));
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px; height: 56px;
+  box-shadow: 0 2px 8px var(--shadow);
+}
+.topbar .brand { color: var(--gold); font-weight: 700; font-size: 1rem; }
+.topbar .actions { display: flex; gap: 10px; }
+.topbar .actions a {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--gold); color: var(--on-light);
+  font-weight: 700; font-size: 0.85rem;
+  padding: 6px 14px; border-radius: 6px;
+  text-decoration: none; transition: background .2s;
+}
+.topbar .actions a:hover { background: var(--gold-dark); }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  position: fixed; top: 56px; left: 0; bottom: 0; width: 220px; z-index: 100;
+  background: var(--blue-dark);
+  display: flex; flex-direction: column;
+  padding: 16px 0;
+  box-shadow: 2px 0 8px var(--shadow);
+  overflow-y: auto;
+}
+.sidebar .tab-btn {
+  display: block; width: 100%;
+  padding: 12px 18px; border: none; background: none;
+  color: #cbd5e1; font-size: 0.88rem; text-align: left;
+  cursor: pointer; border-left: 3px solid transparent;
+  transition: all .2s; font-family: inherit;
+}
+.sidebar .tab-btn:hover { background: rgba(255,255,255,.08); color: #fff; }
+.sidebar .tab-btn.active { background: rgba(255,255,255,.12); color: var(--gold); border-left-color: var(--gold); font-weight: 700; }
+.sidebar .sep { height: 1px; background: rgba(255,255,255,.1); margin: 8px 16px; }
+.sidebar .tab-btn.highlight { color: var(--gold); }
+
+/* ── MAIN ── */
+.main { margin-left: 220px; margin-top: 56px; padding: 28px 32px; min-height: calc(100vh - 56px); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── CARD ── */
+.card {
+  background: var(--surface); border-radius: 10px;
+  box-shadow: 0 2px 10px var(--shadow);
+  padding: 20px 24px; margin-bottom: 20px; max-width: 900px;
+}
+.card h2 {
+  color: var(--blue-dark); font-size: 1rem;
+  border-bottom: 2px solid var(--blue);
+  padding-bottom: 8px; margin-bottom: 16px;
+  display: flex; align-items: center; gap: 8px;
+}
+.card p.desc { font-size: .82rem; color: var(--muted); margin-bottom: 14px; line-height: 1.5; }
+
+/* ── BUTTONS ── */
+.toolbar { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 16px; border: none; border-radius: 7px;
+  font-weight: 700; font-size: 0.83rem; cursor: pointer;
+  transition: all .2s; font-family: inherit;
+}
+.btn-gold  { background: var(--gold); color: var(--on-light); }
+.btn-gold:hover  { background: var(--gold-dark); }
+.btn-blue  { background: var(--blue); color: #fff; }
+.btn-blue:hover  { background: var(--blue-dark); }
+.btn-red   { background: #e53e3e; color: #fff; }
+.btn-red:hover   { background: #c53030; }
+.btn-green { background: #2f855a; color: #fff; }
+.btn-green:hover { background: #276749; }
+.btn-gray  { background: #6b7280; color: #fff; }
+.btn-gray:hover  { background: #4b5563; }
+.btn-sm { padding: 4px 10px; font-size: .75rem; }
+
+/* ── MODAL ── */
+.overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:500; }
+.overlay.open { display:block; }
+.modal {
+  display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+  background:#fff; border-radius:12px; padding:24px; width:460px; max-width:95vw;
+  box-shadow:0 10px 40px rgba(0,0,0,.35); z-index:501; flex-direction:column; gap:12px;
+}
+.modal.open { display:flex; }
+.modal h3 { color:var(--blue-dark); font-size:.95rem; display:flex; align-items:center; gap:8px; }
+.modal textarea {
+  width:100%; min-height:140px; font-family:monospace; font-size:.85rem;
+  border:1px solid var(--blue); border-radius:8px; padding:10px; resize:vertical;
+}
+.modal textarea:focus { outline:none; box-shadow:0 0 0 3px rgba(29,95,196,.2); }
+.modal .modal-btns { display:flex; gap:8px; }
+
+/* ── TABLE ── */
+table { width:100%; border-collapse:collapse; font-size:.83rem; margin-top:6px; }
+th, td { border:1px solid var(--border); padding:5px 8px; }
+th { background:var(--blue); color:#fff; font-size:.82rem; }
+td[contenteditable] { cursor:text; }
+td[contenteditable]:focus { outline:2px solid var(--blue-light); background:#f0f6ff; }
+tr:nth-child(even) td { background:#f8fafc; }
+tr:nth-child(even) td[contenteditable]:focus { background:#e8f0ff; }
+tfoot th, tfoot td { background:var(--blue-dark); color:#fff; }
+td.center { text-align:center; }
+
+/* ── ATTENDANTS MANAGER ── */
+.atend-list { display:flex; flex-direction:column; gap:8px; margin-bottom:16px; }
+.atend-row {
+  display:flex; align-items:center; gap:8px;
+  background:#f8fafc; border:1px solid var(--border);
+  border-radius:8px; padding:8px 12px;
+  transition: box-shadow .2s;
+}
+.atend-row:hover { box-shadow: 0 2px 8px var(--shadow); }
+.atend-row .num {
+  width:24px; height:24px; border-radius:50%;
+  background:var(--blue); color:#fff;
+  display:flex; align-items:center; justify-content:center;
+  font-size:.75rem; font-weight:700; flex-shrink:0;
+}
+.atend-row input {
+  flex:1; border:1px solid var(--border); border-radius:6px;
+  padding:6px 10px; font-size:.88rem; font-family:inherit;
+  text-transform:uppercase;
+}
+.atend-row input:focus { outline:none; border-color:var(--blue); box-shadow:0 0 0 2px rgba(29,95,196,.15); }
+.atend-row .drag-handle { color:#9ca3af; cursor:grab; font-size:.9rem; flex-shrink:0; }
+.atend-row .btn-remove { flex-shrink:0; }
+
+.warning-box {
+  background:#fef3c7; border:1px solid #f59e0b; border-radius:8px;
+  padding:12px 16px; font-size:.82rem; color:#78350f; margin-bottom:16px;
+  display:flex; align-items:flex-start; gap:10px;
+}
+.warning-box i { flex-shrink:0; margin-top:2px; }
+
+/* ── LINK HINT ── */
+.link-hint { font-size:.78rem; color:var(--muted); margin-bottom:8px; }
+.link-hint a { color:var(--blue); }
+
+/* ── SAVED MSG ── */
+.saved-msg {
+  position:fixed; bottom:20px; right:20px; z-index:600;
+  background:#2f855a; color:#fff;
+  padding:10px 20px; border-radius:8px; font-weight:700; font-size:.85rem;
+  box-shadow:0 4px 12px rgba(0,0,0,.2);
+  opacity:0; transition:opacity .3s; pointer-events:none;
+}
+.saved-msg.show { opacity:1; }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <span class="brand"><i class="fas fa-chart-bar"></i> SAGA — Painel de Dados</span>
+  <div class="actions">
+    <a href="index.html">
+        <i class="fas fa-home"></i> Início
+    </a>
+    <a href="relatorio.html" target="_blank"><i class="fas fa-file-alt"></i> Ver Relatório</a>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<nav class="sidebar" id="sidebar">
+  <button class="tab-btn highlight" data-tab="cadastro-atend"><i class="fas fa-id-card"></i>&nbsp; Cadastro de Atendentes</button>
+  <div class="sep"></div>
+  <button class="tab-btn active" data-tab="prod-atend"><i class="fas fa-users"></i>&nbsp; Serviços por Atendente</button>
+  <button class="tab-btn" data-tab="tempo-medio"><i class="fas fa-clock"></i>&nbsp; Tempo Médio (TME/TMA)</button>
+  <button class="tab-btn" data-tab="tme-servico"><i class="fas fa-list-ol"></i>&nbsp; TME por Serviço</button>
+  <button class="tab-btn" data-tab="tma-servico"><i class="fas fa-stopwatch"></i>&nbsp; TMA por Serviço</button>
+  <button class="tab-btn" data-tab="senhas"><i class="fas fa-ticket-alt"></i>&nbsp; Senhas Emitidas</button>
+  <button class="tab-btn" data-tab="saga"><i class="fas fa-desktop"></i>&nbsp; Tempo no SAGA</button>
+  <button class="tab-btn" data-tab="medias"><i class="fas fa-calculator"></i>&nbsp; Médias Gerais</button>
+  <button class="tab-btn" data-tab="senhas-mes"><i class="fas fa-calendar-alt"></i>&nbsp; Senhas por Mês</button>
+</nav>
+
+<main class="main">
+
+  <!-- ════════════════════════
+       ABA 0 — CADASTRO DE ATENDENTES
+  ═════════════════════════════ -->
+  <div class="tab-panel" id="tab-cadastro-atend">
+    <div class="card">
+      <h2><i class="fas fa-id-card"></i> Cadastro de Atendentes</h2>
+      <p class="desc">
+        Gerencie aqui a lista de atendentes. Os nomes cadastrados aparecem automaticamente
+        em <strong>Serviços por Atendente</strong> e <strong>Tempo no SAGA</strong> — tanto
+        nesta tela quanto no relatório. Altere, reordene ou adicione atendentes conforme necessário.
+      </p>
+
+      <div class="warning-box">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span>Ao salvar alterações nos nomes, os dados já preenchidos nas fichas de <strong>Serviços por Atendente</strong>
+        e <strong>Tempo no SAGA</strong> serão vinculados pela posição na lista.
+        Adicionar atendentes no final é seguro; renomear ou reordenar mantém os dados existentes.</span>
+      </div>
+
+      <div class="toolbar">
+        <button class="btn btn-blue" onclick="adicionarAtendente()"><i class="fas fa-plus"></i> Adicionar Atendente</button>
+        <button class="btn btn-green" onclick="salvarAtendentes()"><i class="fas fa-save"></i> Salvar e Aplicar</button>
+        <span style="font-size:.82rem;color:var(--muted);margin-left:4px;" id="atend-count"></span>
+      </div>
+
+      <div class="atend-list" id="atend-list"></div>
+
+      <div class="toolbar" style="margin-top:8px">
+        <button class="btn btn-gray btn-sm" onclick="resetarAtendentesDefault()"><i class="fas fa-undo"></i> Restaurar lista padrão</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════
+       ABA 1 — SERVIÇOS POR ATENDENTE
+  ═════════════════════════════ -->
+  <div class="tab-panel active" id="tab-prod-atend">
+    <div class="card">
+      <h2><i class="fas fa-users"></i> Serviços por Atendente</h2>
+      <p class="link-hint">Sistema: <a href="https://saga.suiterfb.receita.fazenda/saga/www/principal.aspx?URL=Grupos/GrpRelatorios/Servicos/ucServicosAtendidos.ascx" target="_blank">Serviços Atendidos</a></p>
+      <div class="toolbar">
+        <button class="btn btn-gold" onclick="openModal('modal-prod-atend')"><i class="fas fa-paste"></i> Colar Dados</button>
+        <button class="btn btn-green" onclick="salvarTudo()"><i class="fas fa-save"></i> Salvar</button>
+        <button class="btn btn-red" onclick="limparTabela('prod-atend-table')"><i class="fas fa-trash"></i> Limpar</button>
+      </div>
+      <table id="prod-atend-table">
+        <thead><tr><th>Atendente</th><th>Totais</th></tr></thead>
+        <tbody id="prod-atend-tbody"></tbody>
+        <tfoot><tr><th>Total Geral</th><th id="total-geral-atend" class="center">0</th></tr></tfoot>
+      </table>
+    </div>
+  </div>
+  <div class="overlay" id="overlay-prod-atend" onclick="closeModal('modal-prod-atend')"></div>
+  <div class="modal" id="modal-prod-atend">
+    <h3><i class="fas fa-paste"></i> Colar dados — Atendente → Total</h3>
+    <textarea id="txt-prod-atend" placeholder="Cole aqui no formato:&#10;Nome Atendente - 123&#10;Outro Nome - 456"></textarea>
+    <div class="modal-btns">
+      <button class="btn btn-blue" onclick="preencherProdAtend()">Preencher</button>
+      <button class="btn btn-red"  onclick="closeModal('modal-prod-atend')">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════
+       ABA 2 — TEMPO MÉDIO
+  ═════════════════════════════ -->
+  <div class="tab-panel" id="tab-tempo-medio">
+    <div class="card">
+      <h2><i class="fas fa-clock"></i> Indicadores de Tempo (TME / TMA)</h2>
+      <p class="link-hint">Sistema: <a href="https://saga.suiterfb.receita.fazenda/saga/www/principal.aspx?URL=Grupos/GrpRelatorios/Servicos/ucServicosAtendidos.ascx" target="_blank">Serviços Atendidos</a></p>
+      <div class="toolbar">
+        <button class="btn btn-gold" onclick="openModal('modal-tempo-medio')"><i class="fas fa-paste"></i> Colar Dados</button>
+        <button class="btn btn-green" onclick="salvarTudo()"><i class="fas fa-save"></i> Salvar</button>
+      </div>
+      <table id="tempo-medio-table">
+        <thead><tr><th>Indicador</th><th>Tempo</th></tr></thead>
+        <tbody>
+          <tr><td>TME (Tempo Médio de Espera)</td><td contenteditable="true" class="center">00:00:00</td></tr>
+          <tr><td>Deslocamento</td><td contenteditable="true" class="center">00:00:00</td></tr>
+          <tr><td>Atendimento</td><td contenteditable="true" class="center">00:00:00</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="overlay" id="overlay-tempo-medio" onclick="closeModal('modal-tempo-medio')"></div>
+  <div class="modal" id="modal-tempo-medio">
+    <h3><i class="fas fa-paste"></i> Colar dados — Indicador → Tempo</h3>
+    <textarea id="txt-tempo-medio" placeholder="TME (Tempo Médio de Espera)&#9;00:10:00&#10;Deslocamento&#9;00:01:00&#10;Atendimento&#9;00:05:00"></textarea>
+    <div class="modal-btns">
+      <button class="btn btn-blue" onclick="preencherPorNome('tempo-medio-table','txt-tempo-medio')">Preencher</button>
+      <button class="btn btn-red"  onclick="closeModal('modal-tempo-medio')">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════
+       ABA 3 — TME POR SERVIÇO
+  ═════════════════════════════ -->
+  <div class="tab-panel" id="tab-tme-servico">
+    <div class="card">
+      <h2><i class="fas fa-list-ol"></i> TME por Serviço</h2>
+      <p class="link-hint">Sistema: <a href="https://saga.suiterfb.receita.fazenda/saga/www/principal.aspx?URL=Grupos/GrpRelatorios/Servicos/ucServicosAtendidos.ascx" target="_blank">Serviços Atendidos</a></p>
+      <div class="toolbar">
+        <button class="btn btn-gold" onclick="openModal('modal-tme-serv')"><i class="fas fa-paste"></i> Colar Dados</button>
+        <button class="btn btn-green" onclick="salvarTudo()"><i class="fas fa-save"></i> Salvar</button>
+      </div>
+      <table id="tme-servico-table">
+        <thead><tr><th>Serviço</th><th>TME</th></tr></thead>
+        <tbody id="tme-servico-tbody"></tbody>
+        <tfoot><tr><th>Média Total</th><th id="tme-media" class="center">00:00:00</th></tr></tfoot>
+      </table>
+    </div>
+  </div>
+  <div class="overlay" id="overlay-tme-serv" onclick="closeModal('modal-tme-serv')"></div>
+  <div class="modal" id="modal-tme-serv">
+    <h3><i class="fas fa-paste"></i> Colar dados — Serviço → TME</h3>
+    <textarea id="txt-tme-serv" placeholder="AO CPF&#9;00:15:00&#10;Entregar Declaração&#9;00:08:00"></textarea>
+    <div class="modal-btns">
+      <button class="btn btn-blue" onclick="preencherPorNome('tme-servico-table','txt-tme-serv',()=>calcMediaTempo('tme-servico-table','tme-media'))">Preencher</button>
+      <button class="btn btn-red"  onclick="closeModal('modal-tme-serv')">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════
+       ABA 4 — TMA POR SERVIÇO
+  ═════════════════════════════ -->
+  <div class="tab-panel" id="tab-tma-servico">
+    <div class="card">
+      <h2><i class="fas fa-stopwatch"></i> TMA por Serviço</h2>
+      <p class="link-hint">Sistema: <a href="https://saga.suiterfb.receita.fazenda/saga/www/principal.aspx?URL=Grupos/GrpRelatorios/Servicos/ucServicosAtendidos.ascx" target="_blank">Serviços Atendidos</a></p>
+      <div class="toolbar">
+        <button class="btn btn-gold" onclick="openModal('modal-tma-serv')"><i class="fas fa-paste"></i> Colar Dados</button>
+        <button class="btn btn-green" onclick="salvarTudo()"><i class="fas fa-save"></i> Salvar</button>
+      </div>
+      <table id="tma-servico-table">
+        <thead><tr><th>Serviço</th><th>TMA</th></tr></thead>
+        <tbody id="tma-servico-tbody"></tbody>
+        <tfoot><tr><th>Média Total</th><th id="tma-media" class="center">00:00:00</th></tr></tfoot>
+      </table>
+    </div>
+  </div>
+  <div class="overlay" id="overlay-tma-serv" onclick="closeModal('modal-tma-serv')"></div>
+  <div class="modal" id="modal-tma-serv">
+    <h3><i class="fas fa-paste"></i> Colar dados — Serviço → TMA</h3>
+    <textarea id="txt-tma-serv" placeholder="AO CPF&#9;00:05:00&#10;Entregar Declaração&#9;00:12:00"></textarea>
+    <div class="modal-btns">
+      <button class="btn btn-blue" onclick="preencherPorNome('tma-servico-table','txt-tma-serv',()=>calcMediaTempo('tma-servico-table','tma-media'))">Preencher</button>
+      <button class="btn btn-red"  onclick="closeModal('modal-tma-serv')">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════
+       ABA 5 — SENHAS EMITIDAS
+  ═════════════════════════════ -->
+  <div class="tab-panel" id="tab-senhas">
+    <div class="card">
+      <h2><i class="fas fa-ticket-alt"></i> Senhas Emitidas</h2>
+      <p class="link-hint">Sistema: <a href="https://saga.suiterfb.receita.fazenda/saga/www/principal.aspx?URL=Grupos/GrpRelatorios/Triadores/ucHistoricoTriadores.ascx" target="_blank">Histórico Triadores</a></p>
+      <div class="toolbar">
+        <button class="btn btn-green" onclick="salvarTudo()"><i class="fas fa-save"></i> Salvar</button>
+      </div>
+      <table id="senhas-table">
+        <thead><tr><th>Tipo</th><th>Total</th></tr></thead>
+        <tbody>
+          <tr><td>Senhas Agendadas Emitidas</td><td contenteditable="true" class="center"></td></tr>
+          <tr><td>Senhas de Balcão</td><td contenteditable="true" class="center"></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ════════════════════════
+       ABA 6 — TEMPO NO SAGA
+  ═════════════════════════════ -->
+  <div class="tab-panel" id="tab-saga">
+    <div class="card">
+      <h2><i class="fas fa-desktop"></i> Tempo Médio no SAGA (por Atendente)</h2>
+      <p class="link-hint">Sistema: <a href="https://saga.suiterfb.receita.fazenda/saga/www/principal.aspx?URL=Grupos/GrpRelatorios/Servicos/ucServicosAtendidos.ascx" target="_blank">Serviços Atendidos</a></p>
+      <div class="toolbar">
+        <button class="btn btn-gold" onclick="openModal('modal-saga')"><i class="fas fa-paste"></i> Colar Dados</button>
+        <button class="btn btn-green" onclick="salvarTudo()"><i class="fas fa-save"></i> Salvar</button>
+      </div>
+      <table id="saga-table">
+        <thead><tr><th>Atendente</th><th>No SAGA</th><th>Atendendo Senha</th><th>Livre</th><th>Não Chamando</th></tr></thead>
+        <tbody id="saga-tbody"></tbody>
+        <tfoot>
+          <tr>
+            <th>Média Geral</th>
+            <th id="saga-avg-saga"  class="center">00:00:00</th>
+            <th id="saga-avg-atend" class="center">00:00:00</th>
+            <th id="saga-avg-livre" class="center">00:00:00</th>
+            <th id="saga-avg-nc"    class="center">00:00:00</th>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+  <div class="overlay" id="overlay-saga" onclick="closeModal('modal-saga')"></div>
+  <div class="modal" id="modal-saga">
+    <h3><i class="fas fa-paste"></i> Colar dados SAGA</h3>
+    <textarea id="txt-saga" placeholder="Nome&#9;NoSAGA&#9;Atendendo&#9;Livre&#9;NãoChamando&#10;..."></textarea>
+    <div class="modal-btns">
+      <button class="btn btn-blue" onclick="preencherSaga()">Preencher</button>
+      <button class="btn btn-red"  onclick="closeModal('modal-saga')">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════
+       ABA 7 — MÉDIAS GERAIS
+  ═════════════════════════════ -->
+  <div class="tab-panel" id="tab-medias">
+    <div class="card">
+      <h2><i class="fas fa-calculator"></i> Médias Gerais</h2>
+      <div class="toolbar">
+        <button class="btn btn-green" onclick="salvarTudo()"><i class="fas fa-save"></i> Salvar</button>
+      </div>
+      <table id="medias-table">
+        <thead><tr><th>Indicador</th><th>Valor</th></tr></thead>
+        <tbody>
+          <tr><td>Atendentes Logados (Média)</td><td contenteditable="true" class="center" id="atend-logados"></td></tr>
+          <tr><td>Senhas Total por Dia (Média)</td><td contenteditable="true" class="center" id="senhas-dia"></td></tr>
+          <tr><td>Média de Serviços por Atendente</td><td class="center" id="media-serv-atend">—</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ════════════════════════
+       ABA 8 — SENHAS POR MÊS
+  ═════════════════════════════ -->
+  <div class="tab-panel" id="tab-senhas-mes">
+    <div class="card">
+      <h2><i class="fas fa-calendar-alt"></i> Senhas Atendidas por Mês</h2>
+      <p class="link-hint">Sistema: <a href="https://saga.suiterfb.receita.fazenda/saga/www/principal.aspx?URL=Grupos/GrpRelatorios/Servicos/ucServicosAtendidos.ascx" target="_blank">Serviços Atendidos</a></p>
+      <div class="toolbar">
+        <button class="btn btn-gold" onclick="openModal('modal-senhas-mes')"><i class="fas fa-paste"></i> Colar Dados</button>
+        <button class="btn btn-green" onclick="salvarTudo()"><i class="fas fa-save"></i> Salvar</button>
+      </div>
+      <table id="senhas-mes-table">
+        <thead><tr><th>Mês</th><th>Nº de Dias</th><th>Senhas Atendidas</th></tr></thead>
+        <tbody>
+          <tr><td>Janeiro</td><td contenteditable="true" class="center"></td><td contenteditable="true" class="center"></td></tr>
+          <tr><td>Fevereiro</td><td contenteditable="true" class="center"></td><td contenteditable="true" class="center"></td></tr>
+          <tr><td>Março</td><td contenteditable="true" class="center"></td><td contenteditable="true" class="center"></td></tr>
+          <tr><td>Abril</td><td contenteditable="true" class="center"></td><td contenteditable="true" class="center"></td></tr>
+          <tr><td>Maio</td><td contenteditable="true" class="center"></td><td contenteditable="true" class="center"></td></tr>
+          <tr><td>Junho</td><td contenteditable="true" class="center"></td><td contenteditable="true" class="center"></td></tr>
+          <tr><td>Julho</td><td contenteditable="true" class="center"></td><td contenteditable="true" class="center"></td></tr>
+          <tr><td>Agosto</td><td contenteditable="true" class="center"></td><td contenteditable="true" class="center"></td></tr>
+          <tr><td>Setembro</td><td contenteditable="true" class="center"></td><td contenteditable="true" class="center"></td></tr>
+          <tr><td>Outubro</td><td contenteditable="true" class="center"></td><td contenteditable="true" class="center"></td></tr>
+          <tr><td>Novembro</td><td contenteditable="true" class="center"></td><td contenteditable="true" class="center"></td></tr>
+          <tr><td>Dezembro</td><td contenteditable="true" class="center"></td><td contenteditable="true" class="center"></td></tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <th>Totais</th>
+            <th id="total-dias" class="center">0</th>
+            <th id="total-senhas-mes" class="center">0</th>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+  <div class="overlay" id="overlay-senhas-mes" onclick="closeModal('modal-senhas-mes')"></div>
+  <div class="modal" id="modal-senhas-mes">
+    <h3><i class="fas fa-paste"></i> Colar dados — Mês · Dias · Senhas</h3>
+    <textarea id="txt-senhas-mes" placeholder="Janeiro&#9;22&#9;480&#10;Fevereiro&#9;20&#9;430"></textarea>
+    <div class="modal-btns">
+      <button class="btn btn-blue" onclick="preencherSenhasMes()">Preencher</button>
+      <button class="btn btn-red"  onclick="closeModal('modal-senhas-mes')">Cancelar</button>
+    </div>
+  </div>
+
+</main>
+
+<div class="saved-msg" id="saved-msg"><i class="fas fa-check"></i> Salvo com sucesso!</div>
+
+<script>
+/* ════════════════════════════════════════
+   ATENDENTES — lista canônica
+════════════════════════════════════════ */
+const DEFAULT_ATENDENTES = [
+  'ISABELA MORAES OLIVEIRA AZAMBUJA',
+  'JULLIA MEIRELLES SOARES',
+  'LUCIANA GONZAGA DA COSTA',
+  'MURIEL FIORESE',
+  'RONAN MENDANHA PEREIRA',
+  'WALLACE ALVES DE FREITAS',
+];
+
+function getAtendentes() {
+  try {
+    const raw = localStorage.getItem('sagaAtendentes');
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return [...DEFAULT_ATENDENTES];
+}
+
+function setAtendentes(lista) {
+  localStorage.setItem('sagaAtendentes', JSON.stringify(lista));
+}
+
+/* ── Renderiza a lista de edição ── */
+function renderCadastroAtend() {
+  const lista = getAtendentes();
+  const container = document.getElementById('atend-list');
+  container.innerHTML = '';
+  lista.forEach((nome, i) => {
+    const row = document.createElement('div');
+    row.className = 'atend-row';
+    row.dataset.index = i;
+    row.innerHTML = `
+      <span class="drag-handle" title="Arraste para reordenar"><i class="fas fa-grip-vertical"></i></span>
+      <span class="num">${i + 1}</span>
+      <input type="text" value="${nome}" placeholder="Nome do atendente (maiúsculas)" maxlength="80"
+             oninput="this.value=this.value.toUpperCase()" />
+      <button class="btn btn-red btn-sm btn-remove" onclick="removerAtendente(${i})" title="Remover">
+        <i class="fas fa-times"></i>
+      </button>`;
+    container.appendChild(row);
+  });
+  const cnt = document.getElementById('atend-count');
+  if (cnt) cnt.textContent = lista.length + ' atendente' + (lista.length !== 1 ? 's' : '') + ' cadastrado' + (lista.length !== 1 ? 's' : '');
+  ativarDragDrop();
+}
+
+function adicionarAtendente() {
+  const lista = getAtendentes();
+  lista.push('NOVO ATENDENTE');
+  setAtendentes(lista);
+  renderCadastroAtend();
+  // foca no novo campo
+  setTimeout(() => {
+    const inputs = document.querySelectorAll('#atend-list input');
+    const last = inputs[inputs.length - 1];
+    if (last) { last.focus(); last.select(); }
+  }, 50);
+}
+
+function removerAtendente(idx) {
+  const lista = getAtendentes();
+  if (lista.length <= 1) { alert('É necessário ter ao menos um atendente.'); return; }
+  if (!confirm(`Remover "${lista[idx]}"?`)) return;
+  lista.splice(idx, 1);
+  setAtendentes(lista);
+  renderCadastroAtend();
+}
+
+function resetarAtendentesDefault() {
+  if (!confirm('Restaurar a lista padrão de atendentes? Isso vai substituir a lista atual (mas não apaga os dados das fichas).')) return;
+  setAtendentes([...DEFAULT_ATENDENTES]);
+  renderCadastroAtend();
+}
+
+function salvarAtendentes() {
+  const inputs = document.querySelectorAll('#atend-list input');
+  const lista = [];
+  inputs.forEach(inp => {
+    const v = inp.value.trim().toUpperCase();
+    if (v) lista.push(v);
+  });
+  if (!lista.length) { alert('A lista não pode ficar vazia.'); return; }
+  setAtendentes(lista);
+
+  // Preserva valores existentes nas tabelas dinâmicas e atualiza só os nomes
+  const D = getDados();
+  if (!D.atendentes) D.atendentes = [];
+  if (!D.saga)       D.saga = [];
+  while (D.atendentes.length < lista.length) D.atendentes.push([lista[D.atendentes.length], '']);
+  while (D.saga.length < lista.length)       D.saga.push([lista[D.saga.length], '00:00:00','00:00:00','00:00:00','00:00:00']);
+  D.atendentes = D.atendentes.slice(0, lista.length);
+  D.saga       = D.saga.slice(0, lista.length);
+  lista.forEach((nome, i) => {
+    D.atendentes[i][0] = nome;
+    if (D.saga[i]) D.saga[i][0] = nome;
+  });
+  setDados(D);
+
+  // Re-renderiza as tabelas e salva tudo (incluindo TME, TMA, senhas etc.)
+  renderTabelasPorAtendente();
+  salvarTudo();
+}
+
+/* ── Drag & Drop para reordenar ── */
+function ativarDragDrop() {
+  const container = document.getElementById('atend-list');
+  let dragging = null;
+  container.querySelectorAll('.atend-row').forEach(row => {
+    row.draggable = true;
+    row.addEventListener('dragstart', () => { dragging = row; row.style.opacity = '.4'; });
+    row.addEventListener('dragend',   () => { dragging = null; row.style.opacity = ''; });
+    row.addEventListener('dragover',  e => { e.preventDefault(); const after = getDragAfterElement(container, e.clientY); if (after) container.insertBefore(dragging, after); else container.appendChild(dragging); });
+  });
+}
+function getDragAfterElement(container, y) {
+  const els = [...container.querySelectorAll('.atend-row:not([style*="opacity"])')];
+  return els.reduce((closest, el) => {
+    const box = el.getBoundingClientRect();
+    const offset = y - box.top - box.height / 2;
+    return (offset < 0 && offset > closest.offset) ? { offset, element: el } : closest;
+  }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
+/* ════════════════════════════════════════
+   RENDER TABELAS DINÂMICAS POR ATENDENTE
+════════════════════════════════════════ */
+function renderTabelasPorAtendente() {
+  const lista = getAtendentes();
+  const D = getDados();
+
+  // — Produtividade por atendente —
+  const prodTbody = document.getElementById('prod-atend-tbody');
+  prodTbody.innerHTML = '';
+  lista.forEach((nome, i) => {
+    const val = (D.atendentes[i] && D.atendentes[i][1]) || '';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${nome}</td><td contenteditable="true" class="center" data-atend-idx="${i}">${val}</td>`;
+    tr.querySelector('td[contenteditable]').addEventListener('blur', () => { calcTotalAtend(); salvarTudo(); });
+    prodTbody.appendChild(tr);
+  });
+  calcTotalAtend();
+
+  // — SAGA —
+  const sagaTbody = document.getElementById('saga-tbody');
+  sagaTbody.innerHTML = '';
+  lista.forEach((nome, i) => {
+    const linha = D.saga[i] || [nome,'00:00:00','00:00:00','00:00:00','00:00:00'];
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td contenteditable="true" data-saga-idx="${i}" data-col="0">${linha[0]||nome}</td>
+      <td contenteditable="true" class="center" data-saga-idx="${i}" data-col="1">${linha[1]||'00:00:00'}</td>
+      <td contenteditable="true" class="center" data-saga-idx="${i}" data-col="2">${linha[2]||'00:00:00'}</td>
+      <td contenteditable="true" class="center" data-saga-idx="${i}" data-col="3">${linha[3]||'00:00:00'}</td>
+      <td contenteditable="true" class="center" data-saga-idx="${i}" data-col="4">${linha[4]||'00:00:00'}</td>`;
+    tr.querySelectorAll('td[contenteditable]').forEach(td => td.addEventListener('blur', () => { calcSagaMedias(); salvarTudo(); }));
+    sagaTbody.appendChild(tr);
+  });
+  calcSagaMedias();
+}
+
+/* ════════════════════════════════════════
+   SERVIÇOS (TME + TMA)
+════════════════════════════════════════ */
+const SERVICOS = [
+  'AO Conta GovBr','AO Cópia de Documentos ou Declarações','AO CPF',
+  'AO Emissão de Documentos de Arrecadação','AO Orientações','AO Outros',
+  'AO Parcelamento','AO Pesquisa Fiscal e Cadastral',
+  'Consulta de Débitos e Pendências - Protocolar','Consultar Débitos e Pendências',
+  'CPF Emissão do Comprovante de Inscrição - Protocolar',
+  'CPF Inscrição, Atualização ou Cancelamento - Protocolar',
+  'Documentos de Malha IRPF - Protocolar',
+  'Emissão de DARF, DAE ou DAS - Protocolar','Emissão de GPS - Protocolar',
+  'Entregar Declaração','Obter Cópia de Declarações e Processos',
+  'Requerimentos e Processos - Protocolar',
+  'Solicitação de Cópia de Declarações e Processos - Protocolar',
+];
+
+function populateServicoTable(tbodyId, mediaId, savedData) {
+  const tbody = document.getElementById(tbodyId);
+  tbody.innerHTML = '';
+  const map = {};
+  (savedData||[]).forEach(([s,v]) => map[s] = v);
+  SERVICOS.forEach(s => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${s}</td><td contenteditable="true" class="center">${map[s]||'00:00:00'}</td>`;
+    tr.querySelector('td[contenteditable]').addEventListener('blur', () => {
+      calcMediaTempo(tbodyId.replace('-tbody','') + '-table', mediaId);
+      salvarTudo();
+    });
+    tbody.appendChild(tr);
+  });
+  calcMediaTempo(tbodyId.replace('-tbody','') + '-table', mediaId);
+}
+
+/* ════════════════════════════════════════
+   UTILITÁRIOS
+════════════════════════════════════════ */
+const toSec = t => { if(!t) return 0; const p = t.split(':').map(Number); return (p[0]||0)*3600+(p[1]||0)*60+(p[2]||0); };
+const toHMS = s => { if(!isFinite(s)||s<0) return '00:00:00'; return [Math.floor(s/3600),Math.floor((s%3600)/60),Math.floor(s%60)].map(v=>String(v).padStart(2,'0')).join(':'); };
+
+function calcMediaTempo(tableId, resultId) {
+  let total = 0, count = 0;
+  document.querySelectorAll(`#${tableId} tbody tr`).forEach(tr => {
+    const td = tr.querySelectorAll('td')[1];
+    if (td && /^\d{2}:\d{2}:\d{2}$/.test(td.innerText.trim())) { total += toSec(td.innerText.trim()); count++; }
+  });
+  const el = document.getElementById(resultId);
+  if (el) el.innerText = count ? toHMS(Math.floor(total/count)) : '00:00:00';
+}
+
+function calcTotalAtend() {
+  let total = 0;
+  document.querySelectorAll('#prod-atend-tbody tr').forEach(tr => {
+    const v = parseInt(tr.querySelectorAll('td')[1]?.innerText||'0');
+    if (!isNaN(v)) total += v;
+  });
+  document.getElementById('total-geral-atend').innerText = total;
+}
+
+function calcSagaMedias() {
+  const cols = [0,0,0,0]; let n = 0;
+  document.querySelectorAll('#saga-tbody tr').forEach(tr => {
+    const tds = tr.querySelectorAll('td');
+    if (tds.length >= 5) { for(let i=1;i<=4;i++) cols[i-1]+=toSec(tds[i].innerText.trim()); n++; }
+  });
+  ['saga-avg-saga','saga-avg-atend','saga-avg-livre','saga-avg-nc'].forEach((id,i) => {
+    const el = document.getElementById(id); if(el) el.innerText = n ? toHMS(Math.floor(cols[i]/n)) : '00:00:00';
+  });
+}
+
+function calcTotaisMes() {
+  let dias=0, senhas=0;
+  document.querySelectorAll('#senhas-mes-table tbody tr').forEach(tr => {
+    const tds = tr.querySelectorAll('td');
+    dias   += parseInt(tds[1]?.innerText)||0;
+    senhas += parseInt(tds[2]?.innerText)||0;
+  });
+  document.getElementById('total-dias').innerText = dias;
+  document.getElementById('total-senhas-mes').innerText = senhas;
+}
+
+function calcMediaServicos() {
+  const atend  = parseFloat(document.getElementById('atend-logados')?.innerText.replace(',','.'))||0;
+  const senhas = parseFloat(document.getElementById('senhas-dia')?.innerText.replace(',','.'))||0;
+  const el = document.getElementById('media-serv-atend');
+  if (el) el.innerText = atend>0 ? (senhas/atend).toFixed(2) : '—';
+}
+
+/* ════════════════════════════════════════
+   MODAL
+════════════════════════════════════════ */
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+  document.getElementById('overlay-'+id.replace('modal-','')).classList.add('open');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  document.getElementById('overlay-'+id.replace('modal-','')).classList.remove('open');
+}
+
+/* ════════════════════════════════════════
+   PREENCHER VIA COLAR
+════════════════════════════════════════ */
+function preencherProdAtend() {
+  const linhas = document.getElementById('txt-prod-atend').value.trim().split('\n');
+  const rows = document.querySelectorAll('#prod-atend-tbody tr');
+  linhas.forEach(l => {
+    const partes = l.split(/-(?=\s*\d)/);
+    if (partes.length < 2) return;
+    const nome = partes[0].trim().toUpperCase();
+    const val  = partes[1].trim();
+    rows.forEach(tr => {
+      if (tr.querySelectorAll('td')[0].innerText.trim().toUpperCase() === nome)
+        tr.querySelectorAll('td')[1].innerText = val;
+    });
+  });
+  calcTotalAtend(); salvarTudo();
+  closeModal('modal-prod-atend');
+  document.getElementById('txt-prod-atend').value = '';
+}
+
+function preencherPorNome(tableId, txtId, callback) {
+  const linhas = document.getElementById(txtId).value.trim().split('\n');
+  const rows = document.querySelectorAll(`#${tableId} tbody tr`);
+  linhas.forEach(l => {
+    const cols = l.split(/\t|;|,\s*(?=\d{2}:)|\s{2,}/);
+    if (cols.length < 2) return;
+    const nome = cols[0].trim().toLowerCase();
+    const val  = cols[1].trim();
+    rows.forEach(tr => {
+      const tds = tr.querySelectorAll('td');
+      if (tds.length >= 2 && tds[0].innerText.trim().toLowerCase() === nome) tds[1].innerText = val;
+    });
+  });
+  if (callback) callback(); salvarTudo();
+  const modalId = 'modal-'+txtId.replace('txt-','');
+  closeModal(modalId);
+  document.getElementById(txtId).value = '';
+}
+
+function preencherSaga() {
+  const linhas = document.getElementById('txt-saga').value.trim().split('\n');
+  const rows = document.querySelectorAll('#saga-tbody tr');
+  linhas.forEach(l => {
+    const cols = l.split(/\t|;|\s{2,}/);
+    if (cols.length < 5) return;
+    const nome = cols[0].trim().toLowerCase();
+    rows.forEach(tr => {
+      const tds = tr.querySelectorAll('td');
+      if (tds.length >= 5 && tds[0].innerText.trim().toLowerCase() === nome)
+        for(let i=1;i<=4;i++) tds[i].innerText = cols[i].trim();
+    });
+  });
+  calcSagaMedias(); salvarTudo();
+  closeModal('modal-saga');
+  document.getElementById('txt-saga').value = '';
+}
+
+function preencherSenhasMes() {
+  const linhas = document.getElementById('txt-senhas-mes').value.trim().split('\n');
+  const rows = document.querySelectorAll('#senhas-mes-table tbody tr');
+  linhas.forEach(l => {
+    const cols = l.split(/\t|;|,|\s{2,}/);
+    if (cols.length < 3) return;
+    const mes = cols[0].trim().toLowerCase();
+    rows.forEach(tr => {
+      const tds = tr.querySelectorAll('td');
+      if (tds.length >= 3 && tds[0].innerText.trim().toLowerCase() === mes) { tds[1].innerText=cols[1].trim(); tds[2].innerText=cols[2].trim(); }
+    });
+  });
+  calcTotaisMes(); salvarTudo();
+  closeModal('modal-senhas-mes');
+  document.getElementById('txt-senhas-mes').value = '';
+}
+
+function limparTabela(tableId) {
+  if (!confirm('Limpar todos os dados desta tabela?')) return;
+  document.querySelectorAll(`#${tableId} tbody td[contenteditable]`).forEach(td => td.innerText = '');
+  salvarTudo();
+}
+
+/* ════════════════════════════════════════
+   PERSISTÊNCIA
+════════════════════════════════════════ */
+function getDados() {
+  try { return JSON.parse(localStorage.getItem('sagaDados')||'{}'); } catch(e) { return {}; }
+}
+function setDados(d) { localStorage.setItem('sagaDados', JSON.stringify(d)); }
+
+function coletarDados() {
+  const lista = getAtendentes();
+  const d = {};
+
+  // atendentes (índice → [nome, valor])
+  const atend = [];
+  document.querySelectorAll('#prod-atend-tbody tr').forEach((tr, i) => {
+    atend.push([lista[i]||'', tr.querySelectorAll('td')[1]?.innerText.trim()||'']);
+  });
+  d.atendentes = atend;
+
+  // tempo médio
+  const tm = [];
+  document.querySelectorAll('#tempo-medio-table tbody tr').forEach(tr => {
+    const tds = tr.querySelectorAll('td');
+    tm.push([tds[0].innerText.trim(), tds[1].innerText.trim()]);
+  });
+  d.tempoMedio = tm;
+
+  // tme por serviço
+  const tme = [];
+  document.querySelectorAll('#tme-servico-table tbody tr').forEach(tr => {
+    const tds = tr.querySelectorAll('td');
+    if (tds.length >= 2) tme.push([tds[0].innerText.trim(), tds[1].innerText.trim()]);
+  });
+  d.tmeServico = tme;
+
+  // tma por serviço
+  const tma = [];
+  document.querySelectorAll('#tma-servico-table tbody tr').forEach(tr => {
+    const tds = tr.querySelectorAll('td');
+    if (tds.length >= 2) tma.push([tds[0].innerText.trim(), tds[1].innerText.trim()]);
+  });
+  d.tmaServico = tma;
+
+  // senhas
+  const sen = [];
+  document.querySelectorAll('#senhas-table tbody tr').forEach(tr => {
+    const tds = tr.querySelectorAll('td');
+    sen.push([tds[0].innerText.trim(), tds[1].innerText.trim()]);
+  });
+  d.senhas = sen;
+
+  // saga
+  const saga = [];
+  document.querySelectorAll('#saga-tbody tr').forEach((tr, i) => {
+    const tds = tr.querySelectorAll('td');
+    if (tds.length >= 5)
+      saga.push([lista[i]||tds[0].innerText.trim(), tds[1].innerText.trim(), tds[2].innerText.trim(), tds[3].innerText.trim(), tds[4].innerText.trim()]);
+  });
+  d.saga = saga;
+
+  // médias gerais
+  d.mediasGerais = {
+    atendLogados: document.getElementById('atend-logados')?.innerText.trim()||'',
+    senhasDia:    document.getElementById('senhas-dia')?.innerText.trim()||'',
+  };
+
+  // senhas por mês
+  const sm = [];
+  document.querySelectorAll('#senhas-mes-table tbody tr').forEach(tr => {
+    const tds = tr.querySelectorAll('td');
+    sm.push([tds[0].innerText.trim(), tds[1].innerText.trim(), tds[2].innerText.trim()]);
+  });
+  d.senhasMes = sm;
+
+  return d;
+}
+
+function salvarTudo() {
+  setDados(coletarDados());
+  showSaved();
+}
+
+function showSaved() {
+  const msg = document.getElementById('saved-msg');
+  msg.classList.add('show');
+  setTimeout(() => msg.classList.remove('show'), 1800);
+}
+
+function carregarDados() {
+  const D = getDados();
+
+  // tempo médio
+  if (D.tempoMedio) {
+    const rows = document.querySelectorAll('#tempo-medio-table tbody tr');
+    D.tempoMedio.forEach((item, i) => { if (rows[i]) rows[i].querySelectorAll('td')[1].innerText = item[1]; });
+  }
+
+  // tme / tma serviços — passados para o render
+  populateServicoTable('tme-servico-tbody', 'tme-media', D.tmeServico);
+  populateServicoTable('tma-servico-tbody', 'tma-media', D.tmaServico);
+
+  // senhas
+  if (D.senhas) {
+    const rows = document.querySelectorAll('#senhas-table tbody tr');
+    D.senhas.forEach((item, i) => { if (rows[i]) rows[i].querySelectorAll('td')[1].innerText = item[1]; });
+  }
+
+  // médias gerais
+  if (D.mediasGerais) {
+    const al = document.getElementById('atend-logados');
+    const sd = document.getElementById('senhas-dia');
+    if (al) al.innerText = D.mediasGerais.atendLogados;
+    if (sd) sd.innerText = D.mediasGerais.senhasDia;
+    calcMediaServicos();
+  }
+
+  // senhas por mês
+  if (D.senhasMes) {
+    const rows = document.querySelectorAll('#senhas-mes-table tbody tr');
+    D.senhasMes.forEach((item, i) => {
+      if (rows[i]) { const tds=rows[i].querySelectorAll('td'); tds[1].innerText=item[1]; tds[2].innerText=item[2]; }
+    });
+    calcTotaisMes();
+  }
+}
+
+/* ════════════════════════════════════════
+   ABAS
+════════════════════════════════════════ */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+    if (btn.dataset.tab === 'cadastro-atend') renderCadastroAtend();
+  });
+});
+
+/* ════════════════════════════════════════
+   INIT
+════════════════════════════════════════ */
+window.addEventListener('load', () => {
+  renderCadastroAtend();
+  renderTabelasPorAtendente(); // usa atendentes do localStorage + dados salvos
+  carregarDados();
+
+  // auto-save em blur para campos fixos
+  document.querySelectorAll('#senhas-table td[contenteditable], #medias-table td[contenteditable], #senhas-mes-table td[contenteditable], #tempo-medio-table td[contenteditable]').forEach(td => {
+    td.addEventListener('blur', () => { calcTotaisMes(); calcMediaServicos(); salvarTudo(); });
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Relatório Mensal — SAGA</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root {
+  --blue-dark: #0b3d91;
+  --blue:      #1d5fc4;
+  --gold:      #f2c200;
+  --gold-dark: #d19a00;
+  --bg:        #f5f7fb;
+  --surface:   #ffffff;
+  --muted:     #6b7280;
+  --on-light:  #0b1b2b;
+  --border:    #d1d5db;
+  --shadow:    rgba(11,61,145,.10);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, sans-serif; background: var(--bg); color: var(--on-light); font-size: 0.93em; }
+
+/* ── SIDEBAR NAV ── */
+.sidenav {
+  position: fixed; top: 0; left: 0; bottom: 0; width: 220px;
+  background: var(--blue-dark); z-index: 200;
+  display: flex; flex-direction: column; padding: 16px 0;
+  box-shadow: 2px 0 8px var(--shadow);
+  overflow-y: auto;
+}
+.sidenav .brand {
+  color: var(--gold); font-weight: 700; font-size: .95rem;
+  padding: 0 18px 18px; border-bottom: 1px solid rgba(255,255,255,.1);
+  margin-bottom: 8px;
+}
+.sidenav a {
+  display: block; padding: 10px 18px; color: #cbd5e1;
+  text-decoration: none; font-size: .83rem;
+  border-left: 3px solid transparent; transition: all .2s;
+}
+.sidenav a:hover { background: rgba(255,255,255,.08); color: #fff; border-left-color: var(--gold); }
+
+/* ── TOP ACTIONS BAR ── */
+.topbar {
+  position: fixed; top: 0; left: 220px; right: 0; z-index: 100;
+  background: #fff; border-bottom: 2px solid var(--border);
+  display: flex; align-items: center; gap: 10px; padding: 8px 24px;
+  box-shadow: 0 2px 6px var(--shadow);
+}
+.topbar .btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 16px; border: none; border-radius: 7px;
+  font-weight: 700; font-size: .83rem; cursor: pointer; font-family: inherit; transition: all .2s;
+}
+.btn-gold  { background: var(--gold);     color: var(--on-light); }
+.btn-gold:hover { background: var(--gold-dark); }
+.btn-blue  { background: var(--blue);     color: #fff; }
+.btn-blue:hover { background: var(--blue-dark); }
+.topbar .spacer { flex: 1; }
+.topbar .meta-info { font-size: .8rem; color: var(--muted); }
+
+/* ── MAIN ── */
+main {
+  margin-left: 220px; margin-top: 56px;
+  padding: 0; /* padding will be on the print area */
+}
+
+/* ── PRINT AREA ── */
+.print-area {
+  max-width: 850px; margin: 0 auto; padding: 32px 40px 60px;
+}
+
+/* ── COVER ── */
+.cover {
+  min-height: 60vh;
+  background: linear-gradient(135deg, var(--blue-dark) 0%, var(--blue) 100%);
+  border-radius: 12px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 60px 40px;
+  margin-bottom: 40px; page-break-after: always;
+  color: #fff;
+}
+.cover .logo-row { color: var(--gold); font-size: 3rem; margin-bottom: 20px; }
+.cover h1 { font-size: 1.4rem; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 16px; color: var(--gold); line-height: 1.4; }
+.cover .meta-cover { font-size: .9rem; line-height: 1.8; opacity: .9; }
+
+/* ── SECTION ── */
+.section {
+  background: var(--surface);
+  border-radius: 10px;
+  box-shadow: 0 2px 10px var(--shadow);
+  padding: 24px 28px;
+  margin-bottom: 24px;
+  page-break-inside: avoid;
+}
+.section h2 {
+  color: var(--blue-dark); font-size: 1rem;
+  border-left: 4px solid var(--gold); padding-left: 10px;
+  margin-bottom: 14px;
+  display: flex; align-items: center; gap: 8px;
+}
+.section h3 { color: var(--blue); font-size: .9rem; margin: 14px 0 8px; }
+
+/* ── KPI CARDS ── */
+.kpi-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.kpi {
+  flex: 1; min-width: 130px;
+  background: #dbeafe; border-radius: 8px;
+  padding: 12px 14px; text-align: center;
+  box-shadow: 0 1px 4px rgba(0,0,0,.08);
+}
+.kpi .label { font-size: .72rem; color: var(--blue-dark); font-weight: 700; margin-bottom: 6px; }
+.kpi .val   { font-size: 1.3rem; font-weight: 700; color: var(--on-light); }
+.kpi .sub   { font-size: .68rem; color: var(--muted); margin-top: 4px; }
+
+/* ── TABLES ── */
+table { width: 100%; border-collapse: collapse; font-size: .78rem; margin-top: 6px; margin-bottom: 10px; }
+th, td { border: 1px solid var(--border); padding: 5px 8px; }
+th { background: var(--blue); color: #fff; font-size: .76rem; }
+tfoot th { background: var(--blue-dark); color: #fff; }
+tr:nth-child(even) td { background: #f8fafc; }
+td.center, .center { text-align: center; }
+
+/* ── CHARTS ── */
+.chart-wrap { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; margin-top: 14px; }
+.chart-box { flex: 1; min-width: 280px; max-width: 380px; }
+canvas { width: 100% !important; }
+
+/* ── ANALYSIS NOTE ── */
+.note {
+  background: #fefce8; border-left: 3px solid var(--gold);
+  border-radius: 6px; padding: 10px 14px;
+  font-size: .79rem; color: #555; margin-top: 12px; line-height: 1.5;
+}
+
+/* ── INTRO BOX ── */
+.intro-box {
+  background: #f0f7ff; border-left: 4px solid var(--blue);
+  border-radius: 8px; padding: 16px 20px;
+  font-size: .85rem; line-height: 1.7; color: #333;
+  margin-bottom: 20px;
+}
+.intro-box strong { color: var(--blue-dark); }
+
+/* ── CARD GRID ── */
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 12px; }
+.card-impl {
+  background: #f9fafb; border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px 16px;
+}
+.card-impl h3 { color: var(--blue); font-size: .85rem; margin-bottom: 8px; }
+.card-impl ul { margin-left: 16px; font-size: .78rem; line-height: 1.7; }
+.card-impl p  { font-size: .78rem; line-height: 1.6; color: #444; }
+
+/* ── SIGNATURE ── */
+.signature { margin-top: 40px; font-size: .85rem; line-height: 2; }
+
+/* ── PRINT STYLES ── */
+@media print {
+  .sidenav, .topbar { display: none !important; }
+  main { margin: 0 !important; }
+  .print-area { padding: 16px !important; }
+  .cover { min-height: auto !important; padding: 40px !important; }
+  .section { box-shadow: none !important; border: 1px solid var(--border) !important; }
+  body { background: #fff !important; }
+  .chart-wrap { page-break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+
+<!-- SIDENAV -->
+<nav class="sidenav">
+  <div class="brand"><i class="fas fa-file-alt"></i> Relatório SAGA</div>
+  <a href="#cover"><i class="fas fa-bookmark"></i> Capa</a>
+  <a href="#introducao"><i class="fas fa-book-open"></i> Introdução</a>
+  <a href="#panorama"><i class="fas fa-tachometer-alt"></i> Panorama Geral</a>
+  <a href="#servicos"><i class="fas fa-list"></i> Análise por Serviço</a>
+  <a href="#desempenho"><i class="fas fa-users"></i> Desempenho da Equipe</a>
+  <a href="#saga-sec"><i class="fas fa-desktop"></i> Ocupação SAGA</a>
+  <a href="#implementacoes"><i class="fas fa-rocket"></i> Implementações</a>
+  <a href="#conclusao"><i class="fas fa-flag-checkered"></i> Conclusão</a>
+  <div style="margin-top:auto;">
+  <a href="index.html" style="color:var(--gold); font-weight:700;"><i class="fas fa-home"></i> Página Inicial</a>
+  <a href="app.html" style="color:var(--gold); font-weight:700;"><i class="fas fa-edit"></i> Editar Dados</a>    
+  </div>
+
+</nav>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <button class="btn btn-gold" onclick="window.print()"><i class="fas fa-print"></i> Imprimir / PDF</button>
+  <button class="btn btn-blue" onclick="location.reload()"><i class="fas fa-sync-alt"></i> Atualizar</button>
+  <span class="spacer"></span>
+  <span class="meta-info">Período: <strong id="periodo-top">—</strong> &nbsp;|&nbsp; Emissão: <strong id="emissao-top">—</strong></span>
+</div>
+
+<main>
+<div class="print-area" id="print-area">
+
+  <!-- ── CAPA ── -->
+  <section class="cover" id="cover">
+    <div class="logo-row"><i class="fas fa-landmark"></i></div>
+    <h1>Relatório Mensal de Atividades de Atendimento</h1>
+    <div class="meta-cover">
+      Agência da Receita Federal do Brasil em <strong>Rio Verde/GO</strong><br>
+      Período: <span id="periodo">—</span><br>
+      Emissão: <span id="emissao">—</span>
+    </div>
+  </section>
+
+  <!-- ── INTRODUÇÃO ── -->
+  <section class="section" id="introducao">
+    <h2><i class="fas fa-book-open"></i> Introdução</h2>
+    <div class="intro-box" contenteditable="true">
+      <p>Este relatório apresenta a consolidação e análise das atividades de atendimento presencial realizadas pela
+      <strong>Agência da Receita Federal em Rio Verde/GO</strong>, referentes ao período de avaliação,
+      em conformidade com as diretrizes estabelecidas pela
+      <strong>Portaria RFB nº 4.261, de 16 de março de 2020</strong>,
+      sua redação dada pela <strong>Portaria RFB nº 399, de 15 de março de 2024</strong>,
+      e pela <strong>Portaria COGEA nº 39, de 22 de novembro de 2023</strong>.</p>
+      <p>O documento abrange os serviços prestados nas modalidades de
+      <strong>Atendimento Presencial Avançado (APA)</strong>,
+      <strong>Autoatendimento Orientado (AAO)</strong>
+      e demais atendimentos protocolados mediante emissão de senha de balcão.</p>
+      <p>A análise, fundamentada em dados extraídos do sistema <strong>SAGA</strong>, tem como objetivo
+      avaliar a eficiência operacional, identificar as principais demandas e propor ações
+      para o aprimoramento contínuo dos serviços prestados ao cidadão.</p>
+      <p>Os indicadores que compõem o <strong>Índice de Eficiência do Atendimento (IEA)</strong> são:
+      <strong>IDA</strong> (Índice de Atendimento à Demanda),
+      <strong>ITA</strong> (Índice de Tempo de Resposta do Atendimento) e
+      <strong>ISA</strong> (Índice de Satisfação do Atendimento).
+      As metas definidas para 2024–2027: <strong>IDA 90%</strong>, <strong>ITA 80%</strong> e <strong>ISA 70%</strong>.</p>
+    </div>
+  </section>
+
+  <!-- ── PANORAMA GERAL ── -->
+  <section class="section" id="panorama">
+    <h2><i class="fas fa-tachometer-alt"></i> Panorama Geral do Atendimento</h2>
+    <div class="kpi-row">
+      <div class="kpi"><div class="label">Total de Atendimentos</div><div class="val" id="kpi-total">—</div><div class="sub">Soma por atendente</div></div>
+      <div class="kpi"><div class="label">TME (Espera)</div><div class="val" id="kpi-tme">—</div><div class="sub">Indicadores de Tempo</div></div>
+      <div class="kpi"><div class="label">TMA (Atendimento)</div><div class="val" id="kpi-tma">—</div><div class="sub">Indicadores de Tempo</div></div>
+      <div class="kpi"><div class="label">Senhas Balcão / Agendadas</div><div class="val"><span id="kpi-balcao">—</span> / <span id="kpi-agend">—</span></div><div class="sub">Senhas Emitidas</div></div>
+      <div class="kpi"><div class="label">Atend. Logados (Média)</div><div class="val" id="kpi-atend-log">—</div><div class="sub">Médias Gerais</div></div>
+      <div class="kpi"><div class="label">Média Serv/Atendente</div><div class="val" id="kpi-serv-atend">—</div><div class="sub">Médias Gerais</div></div>
+    </div>
+    <div class="note">Análise Preliminar: O mês operou dentro de parâmetros de excelência, com TME
+    abaixo da meta estabelecida, demonstrando eficiência no fluxo de triagem e atendimento.</div>
+  </section>
+
+  <!-- ── ANÁLISE POR SERVIÇO ── -->
+  <section class="section" id="servicos">
+    <h2><i class="fas fa-list"></i> Análise Detalhada por Serviço</h2>
+    <p style="font-size:.82rem;color:var(--muted);margin-bottom:12px;">Identificação de gargalos para direcionamento estratégico.</p>
+
+    <h3>Serviços — TME e TMA</h3>
+    <table id="tbl-servicos">
+      <thead><tr><th>Serviço</th><th>TME (Espera)</th><th>TMA (Atendimento)</th></tr></thead>
+      <tbody></tbody>
+    </table>
+
+    <div class="note">Os serviços protocolares representam os principais gargalos.
+    Recomenda-se intensificar o direcionamento para canais digitais (e-CAC, Caixa Corporativa).</div>
+  </section>
+
+  <!-- ── DESEMPENHO DA EQUIPE ── -->
+  <section class="section" id="desempenho">
+    <h2><i class="fas fa-users"></i> Desempenho da Equipe e Alocação de Recursos</h2>
+
+    <h3>Ranking de Produtividade</h3>
+    <table id="tbl-ranking">
+      <thead><tr><th>#</th><th>Atendente</th><th>Atendimentos</th><th>% do Total</th></tr></thead>
+      <tbody></tbody>
+      <tfoot><tr><th colspan="2">Total</th><th id="rank-total" class="center">—</th><th class="center">100%</th></tr></tfoot>
+    </table>
+
+    <div class="chart-wrap">
+      <div class="chart-box"><canvas id="chart-ranking"></canvas></div>
+    </div>
+  </section>
+
+  <!-- ── SAGA ── -->
+  <section class="section" id="saga-sec">
+    <h2><i class="fas fa-desktop"></i> Ocupação no SAGA</h2>
+    <table id="tbl-saga">
+      <thead><tr><th>Atendente</th><th>No SAGA</th><th>Atendendo</th><th>Taxa Ocupação</th></tr></thead>
+      <tbody></tbody>
+      <tfoot>
+        <tr>
+          <th>Média</th>
+          <th id="saga-avg-sess" class="center">—</th>
+          <th id="saga-avg-att"  class="center">—</th>
+          <th id="saga-avg-occ"  class="center">—</th>
+        </tr>
+      </tfoot>
+    </table>
+    <div class="chart-wrap">
+      <div class="chart-box"><canvas id="chart-saga"></canvas></div>
+    </div>
+    <div class="note">A baixa taxa de ocupação de alguns servidores não indica ociosidade,
+    mas sim a execução de outras atividades administrativas e de suporte aos colegas,
+    conforme determinação da gestão.</div>
+  </section>
+
+  <!-- ── SENHAS POR MÊS ── -->
+  <section class="section" id="senhas-mes-sec">
+    <h2><i class="fas fa-calendar-alt"></i> Senhas Atendidas por Mês</h2>
+    <table id="tbl-senhas-mes">
+      <thead><tr><th>Mês</th><th>Nº de Dias</th><th>Senhas Atendidas</th></tr></thead>
+      <tbody></tbody>
+      <tfoot>
+        <tr>
+          <th>Totais</th>
+          <th id="total-dias-rel"  class="center">—</th>
+          <th id="total-senhas-rel" class="center">—</th>
+        </tr>
+      </tfoot>
+    </table>
+  </section>
+
+  <!-- ── IMPLEMENTAÇÕES ── -->
+  <section class="section" id="implementacoes">
+    <h2><i class="fas fa-rocket"></i> Implementações em Curso</h2>
+    <div class="card-grid">
+      <div class="card-impl">
+        <h3>Otimização de Processos</h3>
+        <p><strong>Redução do TME:</strong> reforçar triagem estratégica, redirecionando demandas de alto tempo médio para canais alternativos:</p>
+        <ul><li>Portal e-CAC</li><li>Fale Conosco</li><li>Caixa Corporativa</li></ul>
+        <p style="margin-top:8px"><strong>Redução do TMA:</strong> otimizar triagem com checklist padronizado (ficha preenchida, assinatura conferida, documentação verificada).</p>
+      </div>
+      <div class="card-impl">
+        <h3>Capacitação e Alinhamento</h3>
+        <p>Reuniões ágeis e contínuas da equipe para:</p>
+        <ul><li>Correção de falhas em triagem e atendimento</li><li>Reforço de procedimentos críticos</li><li>Esclarecimento de dúvidas operacionais</li></ul>
+      </div>
+      <div class="card-impl">
+        <h3>Comunicação e Gestão Digital</h3>
+        <ul>
+          <li><strong>e-CAC, Portal de Serviços</strong> e Caixa Corporativa</li>
+          <li><strong>Regularize</strong> para serviços PGFN</li>
+          <li><strong>Chat e Fale Conosco</strong> para dúvidas</li>
+          <li>Material didático e tutoriais internos</li>
+        </ul>
+      </div>
+      <div class="card-impl">
+        <h3>Projetos Futuros</h3>
+        <ul>
+          <li>Revisão periódica dos fluxos de trabalho</li>
+          <li>Piloto do Balcão Gov (planejamento)</li>
+          <li>Gestão de reputação no Google Meu Negócio</li>
+          <li>Monitoramento de TME, TMA e satisfação</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CONCLUSÃO ── -->
+  <section class="section" id="conclusao">
+    <h2><i class="fas fa-flag-checkered"></i> Conclusão</h2>
+    <div contenteditable="true" style="font-size:.85rem;line-height:1.8">
+      <p>A Agência de Rio Verde/GO manteve operação dentro dos padrões de excelência no mês de
+      <strong id="mes-conclusao">—</strong>, com indicadores (TME e TMA) dentro das metas estabelecidas.
+      Total de atendimentos registrado: <strong id="total-conclusao">—</strong>.</p>
+      <p>A análise identificou pontos de melhoria nos serviços protocolares, que serão foco das próximas
+      ações estratégicas. Indicadores: TME = <strong id="tme-conclusao">—</strong>,
+      TMA = <strong id="tma-conclusao">—</strong>.</p>
+    </div>
+    <div class="signature">
+      <p>Atenciosamente,</p>
+      <p><strong>Luciana Gonzaga da Costa Fernandes</strong><br>Titular — Agência da Receita Federal em Rio Verde/GO</p>
+    </div>
+  </section>
+
+</div><!-- /print-area -->
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+/* ─────────────────────────────────────────────────
+   UTILITÁRIOS
+───────────────────────────────────────────────────*/
+const toSec = t => {
+  if(!t || typeof t !== 'string') return 0;
+  const p = t.split(':').map(Number);
+  return (p[0]||0)*3600 + (p[1]||0)*60 + (p[2]||0);
+};
+const toHMS = s => {
+  if(!isFinite(s) || s <= 0) return '—';
+  return [Math.floor(s/3600), Math.floor((s%3600)/60), Math.floor(s%60)]
+    .map(v => String(v).padStart(2,'0')).join(':');
+};
+const txt = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+
+/* ─────────────────────────────────────────────────
+   DATA & PERÍODO
+───────────────────────────────────────────────────*/
+const hoje = new Date();
+const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
+               'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const periodoStr = MESES[hoje.getMonth()] + ' de ' + hoje.getFullYear();
+const emissaoStr = hoje.toLocaleDateString('pt-BR');
+['periodo','periodo-top'].forEach(id => txt(id, periodoStr));
+['emissao','emissao-top'].forEach(id => txt(id, emissaoStr));
+txt('mes-conclusao', MESES[hoje.getMonth()]);
+
+/* ─────────────────────────────────────────────────
+   CARREGAR DADOS DO localStorage
+───────────────────────────────────────────────────*/
+let D = {};
+try {
+  D = JSON.parse(localStorage.getItem('sagaDados') || '{}');
+} catch(e) { console.warn('Erro ao carregar dados:', e); }
+
+/* ─── 1. ATENDENTES / RANKING ─── */
+function renderAtendentes() {
+  if(!D.atendentes) return;
+  let total = 0;
+  const pessoas = D.atendentes
+    .map(([nome, val]) => ({ nome, val: parseInt(val)||0 }))
+    .filter(p => p.val > 0);
+  pessoas.forEach(p => total += p.val);
+  txt('kpi-total', total || '—');
+  txt('total-conclusao', total || '—');
+
+  pessoas.sort((a,b) => b.val - a.val);
+  const tbody = document.querySelector('#tbl-ranking tbody');
+  tbody.innerHTML = '';
+  pessoas.forEach((p, i) => {
+    const pct = total ? ((p.val/total)*100).toFixed(1)+'%' : '—';
+    tbody.insertAdjacentHTML('beforeend',
+      `<tr><td class="center">${i+1}</td><td>${p.nome}</td><td class="center">${p.val}</td><td class="center">${pct}</td></tr>`);
+  });
+  txt('rank-total', total || '—');
+  return pessoas;
+}
+
+/* ─── 2. TEMPO MÉDIO (TME / TMA gerais) ─── */
+function renderTempoMedio() {
+  if(!D.tempoMedio) return;
+  const mapa = {};
+  D.tempoMedio.forEach(([ind, val]) => mapa[ind.toLowerCase()] = val);
+  const tme = mapa['tme (tempo médio de espera)'] || '—';
+  const tma = mapa['atendimento'] || '—';
+  txt('kpi-tme', tme);
+  txt('kpi-tma', tma);
+  txt('tme-conclusao', tme);
+  txt('tma-conclusao', tma);
+}
+
+/* ─── 3. SENHAS EMITIDAS ─── */
+function renderSenhas() {
+  if(!D.senhas) return;
+  const agend = D.senhas.find(s => s[0].toLowerCase().includes('agendad'));
+  const balc  = D.senhas.find(s => s[0].toLowerCase().includes('balcão') || s[0].toLowerCase().includes('balcao'));
+  txt('kpi-agend',  agend?.[1] || '—');
+  txt('kpi-balcao', balc?.[1]  || '—');
+}
+
+/* ─── 4. SERVIÇOS (TME + TMA por serviço) ─── */
+function renderServicos() {
+  const mapTME = {}, mapTMA = {};
+  (D.tmeServico||[]).forEach(([s,v]) => { if(v && v!=='00:00:00') mapTME[s] = v; });
+  (D.tmaServico||[]).forEach(([s,v]) => { if(v && v!=='00:00:00') mapTMA[s] = v; });
+
+  const servicos = new Set([...Object.keys(mapTME), ...Object.keys(mapTMA)]);
+  const tbody = document.querySelector('#tbl-servicos tbody');
+  tbody.innerHTML = '';
+
+  // Ordena por TME decrescente
+  const arr = [...servicos]
+    .map(s => ({ s, tme: mapTME[s]||'—', tma: mapTMA[s]||'—', sec: toSec(mapTME[s]||'') }))
+    .sort((a,b) => b.sec - a.sec);
+
+  arr.forEach(({s, tme, tma}) => {
+    tbody.insertAdjacentHTML('beforeend',
+      `<tr><td>${s}</td><td class="center">${tme}</td><td class="center">${tma}</td></tr>`);
+  });
+}
+
+/* ─── 5. SAGA ─── */
+function renderSaga() {
+  if(!D.saga) return;
+  let accSess=0, accAtt=0, n=0;
+  const tbody = document.querySelector('#tbl-saga tbody');
+  tbody.innerHTML = '';
+  D.saga.forEach(linha => {
+    if(linha.length < 3) return;
+    const nome = linha[0];
+    const sess = linha[1];
+    const att  = linha[2];
+    const occ  = toSec(sess) > 0 ? ((toSec(att)/toSec(sess))*100).toFixed(0)+'%' : '—';
+    tbody.insertAdjacentHTML('beforeend',
+      `<tr><td>${nome}</td><td class="center">${sess}</td><td class="center">${att}</td><td class="center">${occ}</td></tr>`);
+    accSess += toSec(sess); accAtt += toSec(att); n++;
+  });
+  txt('saga-avg-sess', toHMS(accSess/Math.max(n,1)));
+  txt('saga-avg-att',  toHMS(accAtt/Math.max(n,1)));
+  txt('saga-avg-occ',  accSess>0 ? ((accAtt/accSess)*100).toFixed(0)+'%' : '—');
+  return D.saga;
+}
+
+/* ─── 6. MÉDIAS GERAIS ─── */
+function renderMediasGerais() {
+  if(!D.mediasGerais) return;
+  const al = D.mediasGerais.atendLogados;
+  const sd = D.mediasGerais.senhasDia;
+  txt('kpi-atend-log', al || '—');
+  const alN = parseFloat((al||'').replace(',','.'));
+  const sdN = parseFloat((sd||'').replace(',','.'));
+  txt('kpi-serv-atend', (alN>0 && sdN>0) ? (sdN/alN).toFixed(2) : '—');
+}
+
+/* ─── 7. SENHAS POR MÊS ─── */
+function renderSenhasMes() {
+  if(!D.senhasMes) return;
+  let totalDias=0, totalSen=0;
+  const tbody = document.querySelector('#tbl-senhas-mes tbody');
+  tbody.innerHTML = '';
+  D.senhasMes.forEach(([mes, dias, senhas]) => {
+    if(!dias && !senhas) return;
+    tbody.insertAdjacentHTML('beforeend',
+      `<tr><td>${mes}</td><td class="center">${dias||''}</td><td class="center">${senhas||''}</td></tr>`);
+    totalDias  += parseInt(dias)||0;
+    totalSen   += parseInt(senhas)||0;
+  });
+  txt('total-dias-rel',   totalDias  || '—');
+  txt('total-senhas-rel', totalSen   || '—');
+}
+
+/* ─────────────────────────────────────────────────
+   GRÁFICOS
+───────────────────────────────────────────────────*/
+const CORES = ['#1d5fc4','#f2c200','#0b3d91','#6ea8ff','#d19a00','#ff8c00','#2f855a','#e53e3e'];
+
+function gerarGraficoRanking(pessoas) {
+  if(!pessoas || !pessoas.length) return;
+  const ctx = document.getElementById('chart-ranking');
+  if(!ctx) return;
+  if(window._chartRanking) window._chartRanking.destroy();
+  window._chartRanking = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: pessoas.map(p => p.nome.split(' ')[0]),
+      datasets: [{ label: 'Atendimentos', data: pessoas.map(p => p.val),
+        backgroundColor: CORES.slice(0, pessoas.length), borderRadius: 6 }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false }, title: { display: true, text: 'Ranking de Produtividade' } },
+      scales: { y: { beginAtZero: true } }
+    }
+  });
+}
+
+function gerarGraficoSaga(sagaData) {
+  if(!sagaData || !sagaData.length) return;
+  const ctx = document.getElementById('chart-saga');
+  if(!ctx) return;
+  if(window._chartSaga) window._chartSaga.destroy();
+  const nomes = sagaData.map(l => l[0].split(' ')[0]);
+  const taxas = sagaData.map(l => {
+    const s = toSec(l[1]), a = toSec(l[2]);
+    return s > 0 ? parseFloat(((a/s)*100).toFixed(1)) : 0;
+  });
+  window._chartSaga = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: nomes,
+      datasets: [{ data: taxas, backgroundColor: CORES.slice(0, nomes.length), borderWidth: 1 }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { size: 11 } } },
+        title: { display: true, text: 'Taxa de Ocupação no SAGA (%)' }
+      }
+    }
+  });
+}
+
+/* ─────────────────────────────────────────────────
+   INIT
+───────────────────────────────────────────────────*/
+window.addEventListener('load', () => {
+  const pessoas = renderAtendentes();
+  renderTempoMedio();
+  renderSenhas();
+  renderServicos();
+  const sagaData = renderSaga();
+  renderMediasGerais();
+  renderSenhasMes();
+
+  // Gráficos (depois que o DOM está pronto)
+  setTimeout(() => {
+    gerarGraficoRanking(pessoas);
+    gerarGraficoSaga(sagaData);
+  }, 50);
+
+  if(!D || Object.keys(D).length === 0) {
+    document.querySelector('.print-area').insertAdjacentHTML('afterbegin',
+      `<div style="background:#fef2f2;border:2px solid #f87171;border-radius:10px;padding:20px 24px;margin-bottom:24px;text-align:center;">
+         <strong style="color:#b91c1c;font-size:1rem"><i class="fas fa-exclamation-triangle"></i> Nenhum dado encontrado</strong>
+         <p style="margin-top:8px;font-size:.85rem;color:#555">
+           Insira os dados no <a href="app.html" style="color:#1d5fc4;font-weight:700">Painel de Dados</a>
+           e volte aqui para ver o relatório preenchido.
+         </p>
+       </div>`);
+  }
+});
+</script>
+</body>
+</html>
